@@ -1,0 +1,97 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Global styles */
+@layer base {
+  body {
+    @apply font-sans bg-gray-50 text-gray-900 antialiased;
+  }
+
+  h1 {
+    @apply text-3xl font-bold text-primary tracking-tight;
+  }
+
+  h2 {
+    @apply text-2xl font-bold text-primary-dark tracking-tight;
+  }
+
+  h3 {
+    @apply text-xl font-semibold text-gray-800;
+  }
+
+  h4 {
+    @apply text-lg font-semibold text-gray-700;
+  }
+
+  p {
+    @apply text-gray-600 leading-relaxed;
+  }
+}
+
+/* Custom component styles */
+@layer components {
+  /* Severity badges */
+  .severity-badge {
+    @apply inline-flex items-center px-3 py-1 rounded-full text-sm font-medium text-white;
+  }
+
+  .severity-critical {
+    @apply bg-severity-critical;
+  }
+
+  .severity-high {
+    @apply bg-severity-high;
+  }
+
+  .severity-medium {
+    @apply bg-severity-medium text-gray-900;
+  }
+
+  .severity-low {
+    @apply bg-severity-low;
+  }
+
+  /* Card styles */
+  .card {
+    @apply bg-white rounded-lg shadow-card p-6 hover:shadow-card-hover transition-all duration-200 border border-gray-100;
+  }
+
+  .card-compact {
+    @apply bg-white rounded-lg shadow-card p-4 border border-gray-100;
+  }
+
+  /* Button styles */
+  .btn {
+    @apply px-4 py-2 rounded-md font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+
+  .btn-primary {
+    @apply bg-primary text-white hover:bg-primary-dark;
+  }
+
+  .btn-secondary {
+    @apply bg-gray-200 text-gray-800 hover:bg-gray-300;
+  }
+
+  .btn-danger {
+    @apply bg-severity-critical text-white hover:bg-red-700;
+  }
+
+  /* Input styles */
+  .input {
+    @apply w-full px-4 py-2 border border-neutral-medium rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent;
+  }
+
+  /* Loading spinner */
+  .spinner {
+    @apply inline-block w-6 h-6 border-4 border-gray-300 border-t-primary rounded-full animate-spin;
+  }
+}
+
+/* Custom utilities */
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+}
