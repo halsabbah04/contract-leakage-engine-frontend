@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useMutation } from '@tanstack/react-query';
-import { contractService, getErrorMessage } from '@services';
+import { contractService, getErrorMessage } from '../services';
 import type { ContractMetadata } from '@contract-leakage/shared-types';
 
 interface UploadState {

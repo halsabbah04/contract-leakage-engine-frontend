@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
-import { findingsService } from '@services';
-import type { GetFindingsResponse, LeakageFinding, Severity } from '@contract-leakage/shared-types';
+import { findingsService } from '../services';
+import type { GetFindingsResponse, Severity } from '@contract-leakage/shared-types';
 
 interface UseFindingsOptions {
   severity?: Severity;
