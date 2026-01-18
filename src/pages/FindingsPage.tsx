@@ -1,15 +1,18 @@
+import { useState } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { ArrowLeft, FileText, Loader } from 'lucide-react';
 import FindingsSummary from '@components/findings/FindingsSummary';
 import FindingsList from '@components/findings/FindingsList';
+import UserEmailPrompt from '../components/common/UserEmailPrompt';
 import { useFindings } from '../hooks/useFindings';
 import { contractService } from '../services';
 
 export default function FindingsPage() {
   const { contractId } = useParams<{ contractId: string }>();
   const navigate = useNavigate();
+  const [userEmail, setUserEmail] = useState<string | null>(null);
 
-  const { findings, summary, isLoading, error } = useFindings(contractId || '');
+  const { findings, summary, isLoading, error, refetch } = useFindings(contractId || '');
 
   const handleViewClauses = (clauseIds: string[]) => {
     // Navigate to clauses page with highlighted clauses
@@ -63,36 +66,44 @@ export default function FindingsPage() {
   }
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div>
-        <Link
-          to={`/contract/${contractId}`}
-          className="inline-flex items-center text-sm text-gray-600 hover:text-primary mb-4 transition-colors"
-        >
-          <ArrowLeft size={16} className="mr-1" />
-          Back to Contract
-        </Link>
-        <div className="flex items-center space-x-3">
-          <FileText size={32} className="text-primary" />
-          <div>
-            <h1 className="text-3xl font-bold">Leakage Findings</h1>
-            <p className="text-gray-600 mt-1">
-              AI-powered commercial leakage analysis results
-            </p>
+    <>
+      {/* User Email Prompt */}
+      <UserEmailPrompt onEmailSet={setUserEmail} />
+
+      <div className="space-y-6">
+        {/* Header */}
+        <div>
+          <Link
+            to={`/contract/${contractId}`}
+            className="inline-flex items-center text-sm text-gray-600 hover:text-primary mb-4 transition-colors"
+          >
+            <ArrowLeft size={16} className="mr-1" />
+            Back to Contract
+          </Link>
+          <div className="flex items-center space-x-3">
+            <FileText size={32} className="text-primary" />
+            <div>
+              <h1 className="text-3xl font-bold">Leakage Findings</h1>
+              <p className="text-gray-600 mt-1">
+                AI-powered commercial leakage analysis results
+              </p>
+            </div>
           </div>
         </div>
+
+        {/* Summary Cards */}
+        {summary && <FindingsSummary summary={summary} />}
+
+        {/* Findings List */}
+        <FindingsList
+          findings={findings}
+          contractId={contractId}
+          userEmail={userEmail}
+          onViewClauses={handleViewClauses}
+          onExportReport={handleExportReport}
+          onOverrideCreated={refetch}
+        />
       </div>
-
-      {/* Summary Cards */}
-      {summary && <FindingsSummary summary={summary} />}
-
-      {/* Findings List */}
-      <FindingsList
-        findings={findings}
-        onViewClauses={handleViewClauses}
-        onExportReport={handleExportReport}
-      />
-    </div>
+    </>
   );
 }

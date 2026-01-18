@@ -2,12 +2,16 @@ import { useState, useMemo } from 'react';
 import { AlertCircle, Download } from 'lucide-react';
 import { LeakageFinding, Severity, LeakageCategory } from '@contract-leakage/shared-types';
 import FindingCard from './FindingCard';
+import FindingCardWithActions from './FindingCardWithActions';
 import FindingsFilterBar from './FindingsFilterBar';
 
 interface FindingsListProps {
   findings: LeakageFinding[];
+  contractId?: string;
+  userEmail?: string | null;
   onViewClauses?: (clauseIds: string[]) => void;
   onExportReport?: () => void;
+  onOverrideCreated?: () => void;
 }
 
 const SEVERITY_ORDER = {
@@ -19,8 +23,11 @@ const SEVERITY_ORDER = {
 
 export default function FindingsList({
   findings,
+  contractId,
+  userEmail,
   onViewClauses,
   onExportReport,
+  onOverrideCreated,
 }: FindingsListProps) {
   const [selectedSeverity, setSelectedSeverity] = useState<Severity | 'all'>('all');
   const [selectedCategory, setSelectedCategory] = useState<LeakageCategory | 'all'>('all');
@@ -114,13 +121,24 @@ export default function FindingsList({
       {/* Findings Cards */}
       {filteredAndSortedFindings.length > 0 ? (
         <div className="space-y-4">
-          {filteredAndSortedFindings.map((finding) => (
-            <FindingCard
-              key={finding.id}
-              finding={finding}
-              onViewClauses={onViewClauses}
-            />
-          ))}
+          {filteredAndSortedFindings.map((finding) =>
+            contractId && userEmail ? (
+              <FindingCardWithActions
+                key={finding.id}
+                finding={finding}
+                contractId={contractId}
+                userEmail={userEmail}
+                onViewClauses={onViewClauses}
+                onOverrideCreated={onOverrideCreated}
+              />
+            ) : (
+              <FindingCard
+                key={finding.id}
+                finding={finding}
+                onViewClauses={onViewClauses}
+              />
+            )
+          )}
         </div>
       ) : (
         <div className="card text-center py-12">
