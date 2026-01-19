@@ -18,7 +18,7 @@ export const contractService = {
     file: File,
     contractName: string,
     uploadedBy: string,
-    metadata?: Record<string, any>
+    metadata?: Record<string, unknown>
   ): Promise<UploadContractResponse> {
     const formData = new FormData();
     formData.append('file', file);

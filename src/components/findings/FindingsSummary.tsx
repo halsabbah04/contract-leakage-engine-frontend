@@ -1,5 +1,4 @@
 import { AlertTriangle, DollarSign, BarChart3, TrendingUp } from 'lucide-react';
-import { Severity } from '@contract-leakage/shared-types';
 import { formatCurrency, formatPercentage } from '@utils/format';
 import clsx from 'clsx';
 
@@ -47,7 +46,10 @@ export default function FindingsSummary({ summary }: FindingsSummaryProps) {
         <div className="mt-4 pt-4 border-t border-gray-200">
           <div className="flex justify-between text-xs">
             <span className="text-gray-500">Critical + High</span>
-            <span className="font-semibold text-gray-700">
+            <span className={clsx(
+              'font-semibold',
+              (by_severity.CRITICAL + by_severity.HIGH) > 0 ? 'text-error' : 'text-gray-700'
+            )}>
               {by_severity.CRITICAL + by_severity.HIGH}
             </span>
           </div>
@@ -71,7 +73,7 @@ export default function FindingsSummary({ summary }: FindingsSummaryProps) {
           <div className="flex justify-between text-xs">
             <span className="text-gray-600">% of Total</span>
             <span className="font-semibold text-severity-critical">
-              {criticalPercentage.toFixed(1)}%
+              {formatPercentage(criticalPercentage / 100)}
             </span>
           </div>
         </div>
@@ -94,7 +96,7 @@ export default function FindingsSummary({ summary }: FindingsSummaryProps) {
           <div className="flex justify-between text-xs">
             <span className="text-gray-600">% of Total</span>
             <span className="font-semibold text-severity-high">
-              {highPercentage.toFixed(1)}%
+              {formatPercentage(highPercentage / 100)}
             </span>
           </div>
         </div>

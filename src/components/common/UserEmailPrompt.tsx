@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { X, User } from 'lucide-react';
+import { User } from 'lucide-react';
 
 interface UserEmailPromptProps {
   onEmailSet: (email: string) => void;
