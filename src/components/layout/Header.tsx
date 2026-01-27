@@ -1,16 +1,22 @@
 import { Link } from 'react-router-dom';
-import { FileText, Upload } from 'lucide-react';
+import { Upload } from 'lucide-react';
+import kpmgLogo from '../../assets/images/kpmg-logo-new.png';
 
 export default function Header() {
   return (
     <header className="bg-primary text-white shadow-lg">
-      <div className="container mx-auto px-6 py-4">
+      <div className="px-6 py-4">
         <div className="flex items-center justify-between">
-          <Link to="/" className="flex items-center space-x-3 hover:opacity-80 transition-opacity">
-            <FileText size={32} />
+          <Link to="/" className="flex items-center space-x-4 hover:opacity-90 transition-opacity">
+            <img
+              src={kpmgLogo}
+              alt="KPMG Logo"
+              className="h-16 w-auto"
+            />
+            <div className="h-12 w-px bg-white/30" />
             <div>
-              <h1 className="text-2xl font-bold text-white">Contract Leakage Engine</h1>
-              <p className="text-sm text-blue-200">AI-Powered Commercial Leakage Analysis</p>
+              <h1 className="text-xl font-bold text-white">Contract Leakage Engine</h1>
+              <p className="text-xs text-blue-200">AI-Powered Commercial Leakage Analysis</p>
             </div>
           </Link>
 

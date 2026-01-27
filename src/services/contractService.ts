@@ -4,6 +4,7 @@ import type {
   UploadContractResponse,
   AnalyzeContractResponse,
   GetContractResponse,
+  ListContractsResponse,
 } from '@contract-leakage/shared-types';
 
 /**
@@ -11,6 +12,14 @@ import type {
  */
 
 export const contractService = {
+  /**
+   * List all contracts
+   */
+  async listContracts(): Promise<ListContractsResponse> {
+    const response = await apiClient.get<ListContractsResponse>('/list_contracts');
+    return response.data;
+  },
+
   /**
    * Upload a new contract file
    */
@@ -47,8 +56,8 @@ export const contractService = {
    */
   async analyzeContract(contractId: string): Promise<AnalyzeContractResponse> {
     const response = await apiClient.post<AnalyzeContractResponse>(
-      '/analyze_contract',
-      { contract_id: contractId }
+      `/analyze_contract/${contractId}`,
+      {}
     );
 
     return response.data;
