@@ -47,7 +47,7 @@ export default function ClausesList({ clauses, highlightClauseIds = [] }: Clause
         case 'type':
           return a.clause_type.localeCompare(b.clause_type);
         case 'confidence':
-          return b.confidence_score - a.confidence_score;
+          return (b.confidence_score ?? 0) - (a.confidence_score ?? 0);
         case 'section':
           if (!a.section_number) return 1;
           if (!b.section_number) return -1;

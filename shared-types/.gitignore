@@ -1,0 +1,22 @@
+# Dependencies
+node_modules/
+
+# Build output is committed for CI
+# dist/
+
+# TypeScript
+*.tsbuildinfo
+
+# Editor
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+npm-debug.log*

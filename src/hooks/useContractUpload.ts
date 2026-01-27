@@ -57,8 +57,7 @@ interface UploadState {
   contractId: string | null;
   analysisSummary: AnalysisSummary | null;
   currentStage: ProcessingStage;
-  elapsedTime: number; // seconds
-  estimatedTotalTime: number; // seconds
+  elapsedTime: number; // seconds - actual elapsed time
 }
 
 interface UseContractUploadOptions {
@@ -86,7 +85,6 @@ export function useContractUpload(options: UseContractUploadOptions = {}) {
     analysisSummary: null,
     currentStage: 'idle',
     elapsedTime: 0,
-    estimatedTotalTime: 90, // Default estimate
   });
 
   // Timer effect for elapsed time
@@ -115,11 +113,6 @@ export function useContractUpload(options: UseContractUploadOptions = {}) {
       }
     };
   }, [state.isUploading, state.isAnalyzing]);
-
-  // Calculate estimated total time based on stages
-  const calculateEstimatedTotal = (): number => {
-    return Object.values(STAGE_INFO).reduce((sum, stage) => sum + stage.estimatedDuration, 0);
-  };
 
   // Update progress based on current stage and elapsed time
   const updateProgressForStage = (stage: ProcessingStage, stageElapsedTime: number) => {
@@ -150,7 +143,6 @@ export function useContractUpload(options: UseContractUploadOptions = {}) {
         error: null,
         currentStage: 'uploading',
         elapsedTime: 0,
-        estimatedTotalTime: calculateEstimatedTotal(),
       }));
 
       // Progress based on time elapsed in upload stage
@@ -320,12 +312,8 @@ export function useContractUpload(options: UseContractUploadOptions = {}) {
       analysisSummary: null,
       currentStage: 'idle',
       elapsedTime: 0,
-      estimatedTotalTime: 90,
     });
   };
-
-  // Calculate remaining time estimate
-  const estimatedRemainingTime = Math.max(0, state.estimatedTotalTime - state.elapsedTime);
 
   return {
     // State
@@ -338,12 +326,10 @@ export function useContractUpload(options: UseContractUploadOptions = {}) {
     analysisSummary: state.analysisSummary,
     isProcessing: state.isUploading || state.isAnalyzing,
 
-    // New progress state
+    // Progress state - only elapsed time is accurate, stages are approximate
     currentStage: state.currentStage,
     stageInfo: STAGE_INFO[state.currentStage],
     elapsedTime: state.elapsedTime,
-    estimatedRemainingTime,
-    estimatedTotalTime: state.estimatedTotalTime,
 
     // Actions
     uploadContract: uploadMutation.mutate,

@@ -2,7 +2,6 @@ import {
   CheckCircle,
   AlertCircle,
   Clock,
-  Timer,
   Upload,
   FileText,
   FileSearch,
@@ -23,7 +22,6 @@ interface UploadProgressProps {
   currentStage: ProcessingStage;
   stageInfo: StageInfo;
   elapsedTime: number;
-  estimatedRemainingTime: number;
 }
 
 // Format seconds to mm:ss
@@ -78,7 +76,6 @@ export default function UploadProgress({
   currentStage,
   stageInfo,
   elapsedTime,
-  estimatedRemainingTime,
 }: UploadProgressProps) {
   const isComplete = currentStage === 'complete';
   const isProcessing = isUploading || isAnalyzing;
@@ -103,17 +100,11 @@ export default function UploadProgress({
             )}
           </div>
           <div className="flex items-center space-x-4">
-            {/* Time indicators */}
+            {/* Time indicator - shows actual elapsed time only */}
             {isProcessing && (
-              <div className="flex items-center space-x-4 text-sm">
-                <div className="flex items-center space-x-1 text-gray-600">
-                  <Clock size={16} />
-                  <span>{formatTime(elapsedTime)}</span>
-                </div>
-                <div className="flex items-center space-x-1 text-gray-400">
-                  <Timer size={16} />
-                  <span>~{formatTime(estimatedRemainingTime)} left</span>
-                </div>
+              <div className="flex items-center space-x-1 text-sm text-gray-600" title="Elapsed time">
+                <Clock size={16} />
+                <span>{formatTime(elapsedTime)} elapsed</span>
               </div>
             )}
             {error ? (
@@ -141,13 +132,13 @@ export default function UploadProgress({
 
         {/* Stage Progress Indicators */}
         {!error && (
-          <div className="flex items-center justify-between px-2">
+          <div className="relative flex items-center justify-between px-2">
             {VISUAL_STAGES.map((stage, index) => {
               const isActive = stage.key === currentStage;
               const isCompleted = currentStageIndex > index || isComplete;
 
               return (
-                <div key={stage.key} className="flex flex-col items-center flex-1">
+                <div key={stage.key} className="relative flex flex-col items-center flex-1">
                   {/* Stage icon */}
                   <div
                     className={clsx(
@@ -179,20 +170,6 @@ export default function UploadProgress({
                   >
                     {stage.label}
                   </span>
-
-                  {/* Connector line */}
-                  {index < VISUAL_STAGES.length - 1 && (
-                    <div
-                      className={clsx(
-                        'absolute h-0.5 w-[calc(100%/5-2.5rem)] transition-colors duration-300',
-                        currentStageIndex > index ? 'bg-success' : 'bg-gray-200'
-                      )}
-                      style={{
-                        left: `calc(${(index + 1) * 20}% - 0.5rem)`,
-                        top: '1.25rem',
-                      }}
-                    />
-                  )}
                 </div>
               );
             })}

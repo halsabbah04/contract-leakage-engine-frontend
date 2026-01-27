@@ -28,6 +28,71 @@ interface FindingCardWithActionsProps {
   onOverrideCreated?: () => void;
 }
 
+// Helper to get clause IDs (supports both old and new property names)
+function getClauseIds(finding: LeakageFinding): string[] {
+  return finding.clause_ids || finding.affected_clause_ids || [];
+}
+
+// Helper to get confidence (supports both old and new property names)
+function getConfidence(finding: LeakageFinding): number {
+  return finding.confidence ?? finding.confidence_score ?? 0;
+}
+
+// Helper to get category (supports both old and new property names)
+function getCategory(finding: LeakageFinding): string {
+  return finding.leakage_category || finding.category || 'unknown';
+}
+
+// Helper to get finding ID (supports both old and new property names)
+function getFindingId(finding: LeakageFinding): string {
+  return finding.id || finding.finding_id || 'unknown';
+}
+
+// Helper to get financial impact value (returns null if no meaningful impact)
+function getFinancialImpact(finding: LeakageFinding): { amount: number; currency: string; method?: string } | null {
+  // Check new format first - only return if value > 0
+  if (finding.estimated_impact?.value != null && finding.estimated_impact.value > 0) {
+    return {
+      amount: finding.estimated_impact.value,
+      currency: finding.estimated_impact.currency || 'USD',
+      method: finding.estimated_impact.calculation_method || undefined,
+    };
+  }
+  // Fall back to legacy format - only return if amount > 0
+  if (finding.estimated_financial_impact?.amount != null && finding.estimated_financial_impact.amount > 0) {
+    return {
+      amount: finding.estimated_financial_impact.amount,
+      currency: finding.estimated_financial_impact.currency || 'USD',
+      method: finding.estimated_financial_impact.calculation_method,
+    };
+  }
+  // Return null if no financial impact was calculated (contract value not available)
+  return null;
+}
+
+// Helper to format assumptions object as list
+function getAssumptionsList(finding: LeakageFinding): string[] {
+  const assumptions = finding.assumptions;
+  if (!assumptions) return [];
+  if (Array.isArray(assumptions)) {
+    return assumptions as unknown as string[];
+  }
+  const list: string[] = [];
+  if (assumptions.inflation_rate != null) {
+    list.push(`Inflation rate: ${(assumptions.inflation_rate * 100).toFixed(1)}%`);
+  }
+  if (assumptions.remaining_years != null) {
+    list.push(`Remaining years: ${assumptions.remaining_years}`);
+  }
+  if (assumptions.annual_volume != null) {
+    list.push(`Annual volume: ${assumptions.annual_volume.toLocaleString()}`);
+  }
+  if (assumptions.probability != null) {
+    list.push(`Probability: ${(assumptions.probability * 100).toFixed(0)}%`);
+  }
+  return list;
+}
+
 export default function FindingCardWithActions({
   finding,
   contractId,
@@ -49,10 +114,18 @@ export default function FindingCardWithActions({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  // Get normalized values
+  const clauseIds = getClauseIds(finding);
+  const confidence = getConfidence(finding);
+  const category = getCategory(finding);
+  const findingId = getFindingId(finding);
+  const financialImpact = getFinancialImpact(finding);
+  const assumptionsList = getAssumptionsList(finding);
+
   const detectionBadgeColor =
-    finding.detection_method === DetectionMethod.AI
+    finding.detection_method === DetectionMethod.AI || finding.detection_method === 'ai'
       ? 'bg-purple-100 text-purple-700'
-      : finding.detection_method === DetectionMethod.RULE
+      : finding.detection_method === DetectionMethod.RULE || finding.detection_method === 'rule'
       ? 'bg-blue-100 text-blue-700'
       : 'bg-green-100 text-green-700';
 
@@ -63,9 +136,9 @@ export default function FindingCardWithActions({
     try {
       await overridesService.changeSeverity(
         contractId,
-        finding.finding_id,
+        findingId,
         userEmail,
-        finding.severity,
+        finding.severity as Severity,
         newSeverity,
         reason
       );
@@ -83,7 +156,7 @@ export default function FindingCardWithActions({
     setIsSubmitting(true);
     setError(null);
     try {
-      await overridesService.addNote(contractId, finding.finding_id, userEmail, note);
+      await overridesService.addNote(contractId, findingId, userEmail, note);
       setShowAddNote(false);
       onOverrideCreated?.();
     } catch (err) {
@@ -98,7 +171,7 @@ export default function FindingCardWithActions({
     setIsSubmitting(true);
     setError(null);
     try {
-      await overridesService.acceptFinding(contractId, finding.finding_id, userEmail, notes);
+      await overridesService.acceptFinding(contractId, findingId, userEmail, notes);
       setShowAccept(false);
       onOverrideCreated?.();
     } catch (err) {
@@ -113,7 +186,7 @@ export default function FindingCardWithActions({
     setIsSubmitting(true);
     setError(null);
     try {
-      await overridesService.rejectFinding(contractId, finding.finding_id, userEmail, reason);
+      await overridesService.rejectFinding(contractId, findingId, userEmail, reason);
       setShowReject(false);
       onOverrideCreated?.();
     } catch (err) {
@@ -128,7 +201,7 @@ export default function FindingCardWithActions({
     setIsSubmitting(true);
     setError(null);
     try {
-      await overridesService.markAsFalsePositive(contractId, finding.finding_id, userEmail, reason);
+      await overridesService.markAsFalsePositive(contractId, findingId, userEmail, reason);
       setShowFalsePositive(false);
       onOverrideCreated?.();
     } catch (err) {
@@ -143,7 +216,7 @@ export default function FindingCardWithActions({
     setIsSubmitting(true);
     setError(null);
     try {
-      await overridesService.resolveFinding(contractId, finding.finding_id, userEmail, notes);
+      await overridesService.resolveFinding(contractId, findingId, userEmail, notes);
       setShowResolve(false);
       onOverrideCreated?.();
     } catch (err) {
@@ -168,7 +241,7 @@ export default function FindingCardWithActions({
                 {finding.detection_method}
               </span>
               <span className="text-xs text-gray-500">
-                {formatConfidence(finding.confidence_score)} confidence
+                {formatConfidence(confidence)} confidence
               </span>
             </div>
 
@@ -177,12 +250,12 @@ export default function FindingCardWithActions({
             <div className="flex items-center space-x-4 text-sm text-gray-600">
               <div className="flex items-center space-x-1">
                 <Tag size={14} />
-                <span>{formatCategory(finding.category)}</span>
+                <span>{formatCategory(category)}</span>
               </div>
-              {finding.affected_clause_ids.length > 0 && (
+              {clauseIds.length > 0 && (
                 <div className="flex items-center space-x-1">
                   <FileText size={14} />
-                  <span>{finding.affected_clause_ids.length} clause(s)</span>
+                  <span>{clauseIds.length} clause(s)</span>
                 </div>
               )}
             </div>
@@ -232,47 +305,43 @@ export default function FindingCardWithActions({
             </div>
 
             {/* Recommended Action */}
-            <div>
-              <h4 className="text-sm font-semibold text-gray-800 mb-2 flex items-center space-x-2">
-                <Lightbulb size={16} className="text-warning" />
-                <span>Recommended Action</span>
-              </h4>
-              <p className="text-sm text-gray-700 leading-relaxed">{finding.recommended_action}</p>
-            </div>
+            {finding.recommended_action && (
+              <div>
+                <h4 className="text-sm font-semibold text-gray-800 mb-2 flex items-center space-x-2">
+                  <Lightbulb size={16} className="text-warning" />
+                  <span>Recommended Action</span>
+                </h4>
+                <p className="text-sm text-gray-700 leading-relaxed">{finding.recommended_action}</p>
+              </div>
+            )}
 
             {/* Financial Impact */}
-            {finding.estimated_financial_impact && (
+            {financialImpact && (
               <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
                 <h4 className="text-sm font-semibold text-gray-800 mb-2 flex items-center space-x-2">
                   <DollarSign size={16} className="text-warning" />
                   <span>Estimated Financial Impact</span>
                 </h4>
                 <p className="text-2xl font-bold text-warning mb-2">
-                  {formatCurrency(
-                    finding.estimated_financial_impact.amount,
-                    finding.estimated_financial_impact.currency
-                  )}
+                  {formatCurrency(financialImpact.amount, financialImpact.currency)}
                 </p>
-                {finding.estimated_financial_impact.calculation_method && (
+                {financialImpact.method && (
                   <p className="text-xs text-gray-600 mb-1">
-                    Method: {finding.estimated_financial_impact.calculation_method}
+                    Method: {financialImpact.method}
                   </p>
-                )}
-                {finding.estimated_financial_impact.notes && (
-                  <p className="text-xs text-gray-600">{finding.estimated_financial_impact.notes}</p>
                 )}
               </div>
             )}
 
             {/* Assumptions */}
-            {finding.assumptions && finding.assumptions.length > 0 && (
+            {assumptionsList.length > 0 && (
               <div>
                 <h4 className="text-sm font-semibold text-gray-800 mb-2 flex items-center space-x-2">
                   <Target size={16} className="text-gray-600" />
                   <span>Assumptions</span>
                 </h4>
                 <ul className="space-y-1">
-                  {finding.assumptions.map((assumption, idx) => (
+                  {assumptionsList.map((assumption, idx) => (
                     <li key={idx} className="flex items-start space-x-2 text-sm text-gray-600">
                       <span className="mt-1">•</span>
                       <span>{assumption}</span>
@@ -285,18 +354,18 @@ export default function FindingCardWithActions({
             {/* Metadata Footer */}
             <div className="pt-4 border-t border-gray-100">
               <div className="flex items-center justify-between text-xs text-gray-500">
-                <span>Finding ID: {finding.finding_id}</span>
+                <span>Finding ID: {findingId}</span>
                 {finding.rule_id && <span>Rule: {finding.rule_id}</span>}
               </div>
             </div>
 
             {/* View Clauses Button */}
-            {finding.affected_clause_ids.length > 0 && onViewClauses && (
+            {clauseIds.length > 0 && onViewClauses && (
               <div>
                 <button
                   onClick={(e) => {
                     e.stopPropagation();
-                    onViewClauses(finding.affected_clause_ids);
+                    onViewClauses(clauseIds);
                   }}
                   className="text-sm text-primary hover:underline flex items-center space-x-1"
                 >
@@ -313,7 +382,7 @@ export default function FindingCardWithActions({
       <ChangeSeverityModal
         isOpen={showChangeSeverity}
         onClose={() => setShowChangeSeverity(false)}
-        currentSeverity={finding.severity}
+        currentSeverity={finding.severity as Severity}
         onSubmit={handleChangeSeverity}
         isSubmitting={isSubmitting}
       />

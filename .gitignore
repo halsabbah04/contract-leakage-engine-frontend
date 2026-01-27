@@ -13,6 +13,9 @@ dist
 dist-ssr
 *.local
 
+# Include shared-types dist (needed for build)
+!shared-types/dist
+
 # Editor
 .vscode/*
 !.vscode/extensions.json

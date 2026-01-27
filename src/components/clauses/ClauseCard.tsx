@@ -30,8 +30,17 @@ export default function ClauseCard({
   const hasEntities = Object.values(clause.entities).some((arr) => arr && arr.length > 0);
 
   // Format confidence score as percentage
-  const formatConfidence = (score: number): string => {
+  const formatConfidence = (score: number | undefined | null): string => {
+    if (score == null || isNaN(score)) {
+      return 'N/A';
+    }
     return `${Math.round(score * 100)}%`;
+  };
+
+  // Get confidence score (supports both old and new property names)
+  const getConfidence = (): number | undefined => {
+    // Check extraction_confidence (backend) first, then confidence_score (legacy)
+    return (clause as any).extraction_confidence ?? (clause as any).confidence_score;
   };
 
   // Highlight search query in text
@@ -71,7 +80,7 @@ export default function ClauseCard({
             {clause.section_number && (
               <span className="text-xs text-gray-500 font-mono">§ {clause.section_number}</span>
             )}
-            <span className="text-xs text-gray-500">{formatConfidence(clause.confidence_score)} confidence</span>
+            <span className="text-xs text-gray-500">{formatConfidence(getConfidence())} confidence</span>
           </div>
 
           {/* Risk Signals Preview */}
@@ -156,34 +165,33 @@ export default function ClauseCard({
                   </div>
                 )}
 
-                {/* Monetary Values */}
-                {clause.entities.monetary_values && clause.entities.monetary_values.length > 0 && (
+                {/* Monetary Values - Backend uses amounts[] and currency separately */}
+                {clause.entities.amounts && clause.entities.amounts.length > 0 && (
                   <div className="bg-gray-50 rounded-lg p-3">
                     <div className="flex items-center space-x-2 mb-2">
                       <DollarSign size={14} className="text-gray-600" />
                       <span className="text-xs font-semibold text-gray-700">Monetary Values</span>
                     </div>
                     <ul className="space-y-1">
-                      {clause.entities.monetary_values.map((value, idx) => (
+                      {clause.entities.amounts.map((amount: number, idx: number) => (
                         <li key={idx} className="text-xs text-gray-600">
-                          • {value.currency} {value.amount.toLocaleString()}
-                          {value.context && ` (${value.context})`}
+                          • {clause.entities.currency || 'USD'} {amount.toLocaleString()}
                         </li>
                       ))}
                     </ul>
                   </div>
                 )}
 
-                {/* Percentages */}
+                {/* Percentages - Backend returns numbers (e.g., 0.05 for 5%) */}
                 {clause.entities.percentages && clause.entities.percentages.length > 0 && (
                   <div className="bg-gray-50 rounded-lg p-3">
                     <div className="flex items-center space-x-2 mb-2">
                       <span className="text-xs font-semibold text-gray-700">📊 Percentages</span>
                     </div>
                     <ul className="space-y-1">
-                      {clause.entities.percentages.map((pct, idx) => (
+                      {clause.entities.percentages.map((pct: number, idx: number) => (
                         <li key={idx} className="text-xs text-gray-600">
-                          • {pct}
+                          • {typeof pct === 'number' ? `${(pct * 100).toFixed(1)}%` : pct}
                         </li>
                       ))}
                     </ul>
@@ -262,7 +270,7 @@ export default function ClauseCard({
           <div className="pt-4 border-t border-gray-100">
             <div className="flex items-center justify-between text-xs text-gray-500">
               <span>Clause ID: {clause.id}</span>
-              <span>Extracted: {new Date(clause.created_at).toLocaleDateString()}</span>
+              <span>Extracted: {clause.created_at ? new Date(clause.created_at).toLocaleDateString() : 'N/A'}</span>
             </div>
           </div>
         </div>

@@ -2,8 +2,8 @@ import apiClient from './api';
 import type {
   GetClausesResponse,
   Clause,
-  ClauseType,
 } from '@contract-leakage/shared-types';
+import { ClauseType } from '@contract-leakage/shared-types';
 
 /**
  * Clauses Service - Handles extracted clause retrieval
@@ -34,17 +34,18 @@ export const clausesService = {
    */
   async getClausesByType(
     contractId: string
-  ): Promise<Record<ClauseType, Clause[]>> {
+  ): Promise<Record<string, Clause[]>> {
     const response = await this.getClauses(contractId);
 
     // Group clauses by type
-    const grouped = {} as Record<ClauseType, Clause[]>;
+    const grouped: Record<string, Clause[]> = {};
 
     response.clauses.forEach((clause) => {
-      if (!grouped[clause.clause_type]) {
-        grouped[clause.clause_type] = [];
+      const clauseType = clause.clause_type as string;
+      if (!grouped[clauseType]) {
+        grouped[clauseType] = [];
       }
-      grouped[clause.clause_type].push(clause);
+      grouped[clauseType].push(clause);
     });
 
     return grouped;

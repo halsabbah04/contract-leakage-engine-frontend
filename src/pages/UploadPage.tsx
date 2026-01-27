@@ -21,11 +21,10 @@ export default function UploadPage() {
     isProcessing,
     uploadContract,
     reset,
-    // New progress state
+    // Progress state
     currentStage,
     stageInfo,
     elapsedTime,
-    estimatedRemainingTime,
   } = useContractUpload({
     autoAnalyze: true,
   });
@@ -194,7 +193,6 @@ export default function UploadPage() {
             currentStage={currentStage}
             stageInfo={stageInfo}
             elapsedTime={elapsedTime}
-            estimatedRemainingTime={estimatedRemainingTime}
           />
 
           {error && (
