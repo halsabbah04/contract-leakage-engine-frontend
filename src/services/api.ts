@@ -13,7 +13,7 @@ const apiClient: AxiosInstance = axios.create({
   headers: {
     'Content-Type': 'application/json',
   },
-  timeout: 120000, // 2 minutes for analysis operations
+  timeout: 300000, // 5 minutes for analysis operations
 });
 
 // Request interceptor - add auth headers if needed
@@ -59,8 +59,8 @@ export interface ApiError {
   status_code: number;
 }
 
-export function isApiError(error: any): error is ApiError {
-  return error && typeof error.error === 'string';
+export function isApiError(error: unknown): error is ApiError {
+  return typeof error === 'object' && error !== null && 'error' in error && typeof (error as ApiError).error === 'string';
 }
 
 export function getErrorMessage(error: unknown): string {

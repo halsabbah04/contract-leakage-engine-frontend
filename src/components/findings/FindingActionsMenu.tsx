@@ -24,42 +24,52 @@ export default function FindingActionsMenu({
 }: FindingActionsMenuProps) {
   const [isOpen, setIsOpen] = useState(false);
 
+  // Check if finding should have actions disabled based on its properties
+  // For now, all findings can be acted upon (can be extended with override status later)
+  const isResolved = false;
+
   const actions = [
     {
       label: 'Accept Finding',
       icon: Check,
       onClick: onAccept,
       className: 'text-success hover:bg-green-50',
+      disabled: isResolved,
     },
     {
       label: 'Reject Finding',
       icon: X,
       onClick: onReject,
       className: 'text-error hover:bg-red-50',
+      disabled: isResolved,
     },
     {
       label: 'Mark as False Positive',
       icon: AlertTriangle,
       onClick: onMarkFalsePositive,
       className: 'text-warning hover:bg-yellow-50',
+      disabled: isResolved,
     },
     {
       label: 'Change Severity',
       icon: AlertTriangle,
       onClick: onChangeSeverity,
       className: 'text-gray-700 hover:bg-gray-50',
+      disabled: false,
     },
     {
       label: 'Add Note',
       icon: MessageSquare,
       onClick: onAddNote,
       className: 'text-primary hover:bg-blue-50',
+      disabled: false,
     },
     {
       label: 'Mark as Resolved',
       icon: CheckCircle,
       onClick: onResolve,
       className: 'text-success hover:bg-green-50',
+      disabled: isResolved,
     },
   ];
 
@@ -71,7 +81,8 @@ export default function FindingActionsMenu({
           setIsOpen(!isOpen);
         }}
         className="p-2 rounded-full hover:bg-gray-100 transition-colors"
-        title="Finding actions"
+        title={`Actions for finding: ${finding.risk_type}`}
+        aria-label={`Open actions menu for ${finding.severity} severity finding`}
       >
         <MoreVertical size={20} className="text-gray-500" />
       </button>
@@ -93,12 +104,16 @@ export default function FindingActionsMenu({
                   key={index}
                   onClick={(e) => {
                     e.stopPropagation();
-                    action.onClick();
-                    setIsOpen(false);
+                    if (!action.disabled) {
+                      action.onClick();
+                      setIsOpen(false);
+                    }
                   }}
+                  disabled={action.disabled}
                   className={clsx(
                     'w-full flex items-center space-x-3 px-4 py-2 text-sm transition-colors',
-                    action.className
+                    action.className,
+                    action.disabled && 'opacity-50 cursor-not-allowed'
                   )}
                 >
                   <Icon size={16} />

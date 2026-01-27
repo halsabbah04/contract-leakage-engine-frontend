@@ -34,6 +34,12 @@ export default {
           DEFAULT: '#da291c',
           light: '#ffebee',
         },
+        // Neutral colors for borders, backgrounds
+        neutral: {
+          light: '#f5f5f5',
+          medium: '#e0e0e0',
+          dark: '#9e9e9e',
+        },
       },
       fontFamily: {
         sans: ['Inter', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'sans-serif'],

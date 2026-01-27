@@ -1,11 +1,10 @@
 import { useState, useEffect } from 'react';
-import { X, User } from 'lucide-react';
+import { User } from 'lucide-react';
+import { USER_EMAIL_KEY } from '../../hooks/useUserEmail';
 
 interface UserEmailPromptProps {
   onEmailSet: (email: string) => void;
 }
-
-const USER_EMAIL_KEY = 'contract_leakage_user_email';
 
 export default function UserEmailPrompt({ onEmailSet }: UserEmailPromptProps) {
   const [isOpen, setIsOpen] = useState(false);
@@ -93,25 +92,4 @@ export default function UserEmailPrompt({ onEmailSet }: UserEmailPromptProps) {
       </div>
     </div>
   );
-}
-
-/**
- * Hook to get and manage user email
- */
-export function useUserEmail(): [string | null, () => void] {
-  const [userEmail, setUserEmail] = useState<string | null>(null);
-
-  useEffect(() => {
-    const storedEmail = localStorage.getItem(USER_EMAIL_KEY);
-    if (storedEmail) {
-      setUserEmail(storedEmail);
-    }
-  }, []);
-
-  const clearEmail = () => {
-    localStorage.removeItem(USER_EMAIL_KEY);
-    setUserEmail(null);
-  };
-
-  return [userEmail, clearEmail];
 }

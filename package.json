@@ -11,15 +11,15 @@
     "type-check": "tsc --noEmit"
   },
   "dependencies": {
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0",
-    "react-router-dom": "^6.21.1",
+    "@contract-leakage/shared-types": "file:../contract-leakage-engine-backend/shared-types",
     "@tanstack/react-query": "^5.17.9",
     "axios": "^1.6.5",
+    "clsx": "^2.1.0",
     "date-fns": "^3.0.6",
     "lucide-react": "^0.307.0",
-    "clsx": "^2.1.0",
-    "@contract-leakage/shared-types": "file:../contract-leakage-engine-backend/shared-types"
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-router-dom": "^6.21.1"
   },
   "devDependencies": {
     "@types/react": "^18.2.48",

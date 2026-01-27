@@ -22,21 +22,24 @@ export default function FileUpload({
   const [isDragging, setIsDragging] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const validateFile = (file: File): string | null => {
-    // Check file type
-    const fileExtension = '.' + file.name.split('.').pop()?.toLowerCase();
-    if (!acceptedFileTypes.includes(fileExtension)) {
-      return `File type not supported. Please upload: ${acceptedFileTypes.join(', ')}`;
-    }
+  const validateFile = useCallback(
+    (file: File): string | null => {
+      // Check file type
+      const fileExtension = '.' + file.name.split('.').pop()?.toLowerCase();
+      if (!acceptedFileTypes.includes(fileExtension)) {
+        return `File type not supported. Please upload: ${acceptedFileTypes.join(', ')}`;
+      }
 
-    // Check file size
-    const fileSizeMB = file.size / (1024 * 1024);
-    if (fileSizeMB > maxFileSizeMB) {
-      return `File size exceeds ${maxFileSizeMB}MB limit. Your file is ${fileSizeMB.toFixed(2)}MB`;
-    }
+      // Check file size
+      const fileSizeMB = file.size / (1024 * 1024);
+      if (fileSizeMB > maxFileSizeMB) {
+        return `File size exceeds ${maxFileSizeMB}MB limit. Your file is ${fileSizeMB.toFixed(2)}MB`;
+      }
 
-    return null;
-  };
+      return null;
+    },
+    [acceptedFileTypes, maxFileSizeMB]
+  );
 
   const handleFileChange = useCallback(
     (file: File) => {
@@ -52,7 +55,7 @@ export default function FileUpload({
       setSelectedFile(file);
       onFileSelect(file);
     },
-    [onFileSelect]
+    [onFileSelect, validateFile]
   );
 
   const handleDrop = useCallback(

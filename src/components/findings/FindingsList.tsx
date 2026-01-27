@@ -56,10 +56,11 @@ export default function FindingsList({
         case 'category':
           return a.category.localeCompare(b.category);
 
-        case 'impact':
+        case 'impact': {
           const aImpact = a.estimated_financial_impact?.amount || 0;
           const bImpact = b.estimated_financial_impact?.amount || 0;
           return bImpact - aImpact;
+        }
 
         default:
           return 0;
