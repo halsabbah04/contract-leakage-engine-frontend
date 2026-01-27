@@ -24,13 +24,15 @@ const severityOptions: Array<Severity | 'all'> = [
 const categoryOptions: Array<LeakageCategory | 'all'> = [
   'all',
   LeakageCategory.PRICING,
-  LeakageCategory.PAYMENT,
+  LeakageCategory.PAYMENT_TERMS,
   LeakageCategory.RENEWAL,
   LeakageCategory.TERMINATION,
-  LeakageCategory.LIABILITY,
-  LeakageCategory.SLA,
-  LeakageCategory.DISCOUNTS,
-  LeakageCategory.VOLUME,
+  LeakageCategory.LIABILITY_CAP,
+  LeakageCategory.SERVICE_CREDIT,
+  LeakageCategory.VOLUME_DISCOUNT,
+  LeakageCategory.PENALTY,
+  LeakageCategory.AUTO_RENEWAL,
+  LeakageCategory.COMPLIANCE,
 ];
 
 export default function FindingsFilterBar({

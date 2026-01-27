@@ -70,6 +70,7 @@ export function getSeverityColor(severity: Severity): string {
     [Severity.HIGH]: '#f57c00',
     [Severity.MEDIUM]: '#fbc02d',
     [Severity.LOW]: '#388e3c',
+    [Severity.INFO]: '#2196f3',
   };
 
   return colors[severity] || colors[Severity.LOW];
@@ -84,6 +85,7 @@ export function getSeverityBadgeClasses(severity: Severity): string {
     [Severity.HIGH]: 'bg-severity-high text-white',
     [Severity.MEDIUM]: 'bg-severity-medium text-gray-900',
     [Severity.LOW]: 'bg-severity-low text-white',
+    [Severity.INFO]: 'bg-blue-500 text-white',
   };
 
   return classes[severity] || classes[Severity.LOW];
@@ -98,6 +100,7 @@ export function getSeverityBackgroundClasses(severity: Severity): string {
     [Severity.HIGH]: 'bg-severity-high-light',
     [Severity.MEDIUM]: 'bg-severity-medium-light',
     [Severity.LOW]: 'bg-severity-low-light',
+    [Severity.INFO]: 'bg-blue-100',
   };
 
   return classes[severity] || classes[Severity.LOW];
@@ -150,7 +153,10 @@ export function formatClauseType(type: string): string {
 /**
  * Convert leakage category to readable label
  */
-export function formatCategory(category: string): string {
+export function formatCategory(category: string | undefined | null): string {
+  if (!category) {
+    return 'Unknown';
+  }
   return category
     .split('_')
     .map((word) => word.charAt(0).toUpperCase() + word.slice(1))

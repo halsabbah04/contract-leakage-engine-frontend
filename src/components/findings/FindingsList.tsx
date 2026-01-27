@@ -14,11 +14,12 @@ interface FindingsListProps {
   onOverrideCreated?: () => void;
 }
 
-const SEVERITY_ORDER = {
+const SEVERITY_ORDER: Record<string, number> = {
   [Severity.CRITICAL]: 4,
   [Severity.HIGH]: 3,
   [Severity.MEDIUM]: 2,
   [Severity.LOW]: 1,
+  [Severity.INFO]: 0,
 };
 
 export default function FindingsList({
@@ -54,7 +55,7 @@ export default function FindingsList({
           return SEVERITY_ORDER[b.severity] - SEVERITY_ORDER[a.severity];
 
         case 'category':
-          return a.category.localeCompare(b.category);
+          return (a.category || '').localeCompare(b.category || '');
 
         case 'impact': {
           const aImpact = a.estimated_financial_impact?.amount || 0;

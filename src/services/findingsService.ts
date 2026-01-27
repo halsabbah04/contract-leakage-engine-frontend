@@ -64,10 +64,10 @@ export const findingsService = {
     const grouped: Record<string, LeakageFinding[]> = {};
 
     response.findings.forEach((finding) => {
-      if (!grouped[finding.category]) {
-        grouped[finding.category] = [];
+      if (!grouped[finding.leakage_category]) {
+        grouped[finding.leakage_category] = [];
       }
-      grouped[finding.category].push(finding);
+      grouped[finding.leakage_category].push(finding);
     });
 
     return grouped;
