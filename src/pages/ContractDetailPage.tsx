@@ -14,12 +14,14 @@ import {
   Loader2,
   RefreshCw,
   Globe,
+  Eye,
 } from 'lucide-react';
 import { contractService } from '../services';
 import { useFindings } from '../hooks/useFindings';
 import { useClauses } from '../hooks/useClauses';
 import type { Contract } from '@contract-leakage/shared-types';
 import { useState } from 'react';
+import DocumentViewerModal from '../components/common/DocumentViewerModal';
 
 function getStatusColor(status: string): string {
   switch (status) {
@@ -100,6 +102,14 @@ export default function ContractDetailPage() {
   const { contractId } = useParams<{ contractId: string }>();
   const [isExporting, setIsExporting] = useState<'pdf' | 'excel' | null>(null);
 
+  // Document viewer modal state
+  const [documentModalOpen, setDocumentModalOpen] = useState(false);
+  const [documentUrl, setDocumentUrl] = useState<string | null>(null);
+  const [documentFilename, setDocumentFilename] = useState('');
+  const [documentContentType, setDocumentContentType] = useState('');
+  const [documentLoading, setDocumentLoading] = useState(false);
+  const [documentError, setDocumentError] = useState<string | null>(null);
+
   // Fetch contract details
   const {
     data: contract,
@@ -130,6 +140,34 @@ export default function ContractDetailPage() {
     } finally {
       setIsExporting(null);
     }
+  };
+
+  const handleViewDocument = async () => {
+    if (!contractId) return;
+
+    // Open modal and start loading
+    setDocumentModalOpen(true);
+    setDocumentLoading(true);
+    setDocumentError(null);
+    setDocumentUrl(null);
+
+    try {
+      const { document_url, filename, content_type } = await contractService.getDocumentUrl(contractId);
+      setDocumentUrl(document_url);
+      setDocumentFilename(filename);
+      setDocumentContentType(content_type);
+    } catch (error) {
+      console.error('Failed to load document:', error);
+      setDocumentError(error instanceof Error ? error.message : 'Failed to load document');
+    } finally {
+      setDocumentLoading(false);
+    }
+  };
+
+  const handleCloseDocumentModal = () => {
+    setDocumentModalOpen(false);
+    setDocumentUrl(null);
+    setDocumentError(null);
   };
 
   if (contractLoading) {
@@ -165,6 +203,18 @@ export default function ContractDetailPage() {
           <p className="text-gray-600 mt-1">Contract ID: {contract.contract_id}</p>
         </div>
         <div className="flex items-center space-x-3">
+          <button
+            onClick={handleViewDocument}
+            disabled={documentLoading}
+            className="btn btn-primary flex items-center"
+          >
+            {documentLoading ? (
+              <Loader2 size={16} className="mr-2 animate-spin" />
+            ) : (
+              <Eye size={16} className="mr-2" />
+            )}
+            View Document
+          </button>
           <button
             onClick={() => handleExport('pdf')}
             disabled={isExporting !== null || contract.status !== 'analyzed'}
@@ -425,6 +475,18 @@ export default function ContractDetailPage() {
           <div className="card-compact">
             <h3 className="font-semibold mb-4">Quick Actions</h3>
             <div className="space-y-2">
+              <button
+                onClick={handleViewDocument}
+                disabled={documentLoading}
+                className="btn btn-primary w-full flex items-center justify-center"
+              >
+                {documentLoading ? (
+                  <Loader2 size={16} className="mr-2 animate-spin" />
+                ) : (
+                  <Eye size={16} className="mr-2" />
+                )}
+                View Document
+              </button>
               <Link
                 to={`/contract/${contractId}/findings`}
                 className="btn btn-secondary w-full flex items-center justify-center"
@@ -465,6 +527,17 @@ export default function ContractDetailPage() {
           )}
         </div>
       </div>
+
+      {/* Document Viewer Modal */}
+      <DocumentViewerModal
+        isOpen={documentModalOpen}
+        onClose={handleCloseDocumentModal}
+        documentUrl={documentUrl}
+        filename={documentFilename}
+        contentType={documentContentType}
+        isLoading={documentLoading}
+        error={documentError}
+      />
     </div>
   );
 }

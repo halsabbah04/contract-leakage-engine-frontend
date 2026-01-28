@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { FileText, User, DollarSign, Calendar, Building } from 'lucide-react';
 import type { ContractMetadata } from '@contract-leakage/shared-types';
+import { USER_EMAIL_KEY } from '../../hooks/useUserEmail';
 
 interface ContractMetadataFormProps {
   onSubmit: (data: { contractName: string; uploadedBy: string; metadata: ContractMetadata }) => void;
@@ -14,7 +15,10 @@ export default function ContractMetadataForm({
   defaultContractName = '',
 }: ContractMetadataFormProps) {
   const [contractName, setContractName] = useState(defaultContractName);
-  const [uploadedBy, setUploadedBy] = useState('');
+  // Pre-fill email from localStorage if available
+  const [uploadedBy, setUploadedBy] = useState(() => {
+    return localStorage.getItem(USER_EMAIL_KEY) || '';
+  });
   const [contractValue, setContractValue] = useState('');
   const [currency, setCurrency] = useState('USD');
   const [startDate, setStartDate] = useState('');
@@ -52,6 +56,10 @@ export default function ContractMetadataForm({
 
     if (!validate()) return;
 
+    // Save email to localStorage for future use (avoids duplicate prompts)
+    const trimmedEmail = uploadedBy.trim();
+    localStorage.setItem(USER_EMAIL_KEY, trimmedEmail);
+
     const metadata: ContractMetadata = {
       contract_value: contractValue ? parseFloat(contractValue) : undefined,
       currency: currency || 'USD',
@@ -63,7 +71,7 @@ export default function ContractMetadataForm({
 
     onSubmit({
       contractName: contractName.trim(),
-      uploadedBy: uploadedBy.trim(),
+      uploadedBy: trimmedEmail,
       metadata,
     });
   };
