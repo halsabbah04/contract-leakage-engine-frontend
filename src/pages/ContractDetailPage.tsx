@@ -15,9 +15,6 @@ import {
   RefreshCw,
   Globe,
   Eye,
-  TrendingUp,
-  TrendingDown,
-  Minus,
   ShieldAlert,
   ArrowRight,
 } from 'lucide-react';
@@ -132,17 +129,31 @@ export default function ContractDetailPage() {
     contractId || ''
   );
 
-  // Get top findings sorted by severity
+  // Get top findings sorted by severity (highest first)
   const getTopFindings = () => {
     if (!findings || findings.length === 0) return [];
 
-    const severityOrder = { CRITICAL: 0, HIGH: 1, MEDIUM: 2, LOW: 3, INFO: 4 };
+    const severityOrder: Record<string, number> = {
+      CRITICAL: 0, critical: 0,
+      HIGH: 1, high: 1,
+      MEDIUM: 2, medium: 2,
+      LOW: 3, low: 3,
+      INFO: 4, info: 4
+    };
+
     return [...findings]
-      .sort((a, b) => (severityOrder[a.severity as keyof typeof severityOrder] || 4) - (severityOrder[b.severity as keyof typeof severityOrder] || 4))
+      .sort((a, b) => {
+        const aOrder = severityOrder[a.severity] ?? 5;
+        const bOrder = severityOrder[b.severity] ?? 5;
+        return aOrder - bOrder;
+      })
       .slice(0, 3);
   };
 
   const topFindings = getTopFindings();
+
+  // Helper to format severity for display
+  const formatSeverity = (severity: string) => severity?.toUpperCase() || 'UNKNOWN';
 
   // Fetch clauses summary
   const { totalCount: clausesCount, isLoading: clausesLoading } = useClauses(contractId || '');
@@ -279,71 +290,70 @@ export default function ContractDetailPage() {
               </span>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="space-y-4">
-                <div>
-                  <label className="text-sm text-gray-500">Source</label>
-                  <p className="font-medium capitalize">{contract.source || 'Upload'}</p>
-                </div>
-                <div>
-                  <label className="text-sm text-gray-500">Upload Date</label>
-                  <p className="font-medium flex items-center">
-                    <Calendar size={16} className="mr-2 text-gray-400" />
-                    {formatDate(contract.upload_date || contract.created_at)}
-                  </p>
-                </div>
-                <div>
-                  <label className="text-sm text-gray-500">File Type</label>
-                  <p className="font-medium uppercase">
-                    {contract.file_type || 'PDF'}
-                  </p>
-                </div>
-                <div>
-                  <label className="text-sm text-gray-500">Language</label>
-                  <p className="font-medium flex items-center">
-                    <Globe size={16} className="mr-2 text-gray-400" />
-                    {contract.language?.toUpperCase() || 'EN'}
-                  </p>
-                </div>
+            {/* Key Metrics Row */}
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+              <div className="bg-gray-50 rounded-lg p-3">
+                <p className="text-xs text-gray-500 mb-1">Upload Date</p>
+                <p className="font-semibold text-gray-800">
+                  {formatDate(contract.upload_date || contract.created_at)}
+                </p>
               </div>
+              <div className="bg-gray-50 rounded-lg p-3">
+                <p className="text-xs text-gray-500 mb-1">File Type</p>
+                <p className="font-semibold text-gray-800 uppercase">
+                  {contract.file_type || 'PDF'}
+                </p>
+              </div>
+              <div className="bg-gray-50 rounded-lg p-3">
+                <p className="text-xs text-gray-500 mb-1">Language</p>
+                <p className="font-semibold text-gray-800">
+                  {contract.language?.toUpperCase() || 'EN'}
+                </p>
+              </div>
+              <div className="bg-gray-50 rounded-lg p-3">
+                <p className="text-xs text-gray-500 mb-1">Processing Time</p>
+                <p className="font-semibold text-gray-800">
+                  {contract.processing_duration_seconds?.toFixed(1) || '—'}s
+                </p>
+              </div>
+            </div>
 
-              <div className="space-y-4">
+            {/* Additional Details */}
+            {(contract.counterparty || contract.contract_value_estimate || contract.start_date || contract.end_date) && (
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-4 border-t border-gray-100">
                 {contract.counterparty && (
-                  <div>
-                    <label className="text-sm text-gray-500">Counterparty</label>
-                    <p className="font-medium flex items-center">
-                      <Building size={16} className="mr-2 text-gray-400" />
-                      {contract.counterparty}
-                    </p>
+                  <div className="flex items-center space-x-3">
+                    <Building size={18} className="text-gray-400" />
+                    <div>
+                      <p className="text-xs text-gray-500">Counterparty</p>
+                      <p className="font-medium text-gray-800">{contract.counterparty}</p>
+                    </div>
                   </div>
                 )}
                 {contract.contract_value_estimate && (
-                  <div>
-                    <label className="text-sm text-gray-500">Estimated Value</label>
-                    <p className="font-medium flex items-center">
-                      <DollarSign size={16} className="mr-2 text-gray-400" />
-                      {formatCurrency(contract.contract_value_estimate)}
-                    </p>
+                  <div className="flex items-center space-x-3">
+                    <DollarSign size={18} className="text-gray-400" />
+                    <div>
+                      <p className="text-xs text-gray-500">Contract Value</p>
+                      <p className="font-medium text-gray-800">
+                        {formatCurrency(contract.contract_value_estimate)}
+                      </p>
+                    </div>
                   </div>
                 )}
                 {(contract.start_date || contract.end_date) && (
-                  <div>
-                    <label className="text-sm text-gray-500">Contract Period</label>
-                    <p className="font-medium">
-                      {formatDate(contract.start_date)} - {formatDate(contract.end_date)}
-                    </p>
-                  </div>
-                )}
-                {contract.processing_duration_seconds && (
-                  <div>
-                    <label className="text-sm text-gray-500">Processing Time</label>
-                    <p className="font-medium">
-                      {contract.processing_duration_seconds.toFixed(1)}s
-                    </p>
+                  <div className="flex items-center space-x-3">
+                    <Calendar size={18} className="text-gray-400" />
+                    <div>
+                      <p className="text-xs text-gray-500">Contract Period</p>
+                      <p className="font-medium text-gray-800">
+                        {formatDate(contract.start_date)} — {formatDate(contract.end_date)}
+                      </p>
+                    </div>
                   </div>
                 )}
               </div>
-            </div>
+            )}
 
             {contract.error_message && (
               <div className="mt-4 p-4 bg-red-50 border border-red-200 rounded-lg">
@@ -499,102 +509,117 @@ export default function ContractDetailPage() {
                 <Loader2 size={20} className="animate-spin text-primary" />
               </div>
             ) : (
-              <div className="space-y-4">
-                {/* Risk Level Indicator */}
-                <div>
-                  <div className="flex justify-between items-center mb-2">
-                    <span className="text-sm text-gray-600">Overall Risk</span>
-                    <span className={`text-sm font-semibold ${
-                      (summary?.by_severity?.CRITICAL || 0) > 0 ? 'text-red-600' :
-                      (summary?.by_severity?.HIGH || 0) > 0 ? 'text-orange-600' :
-                      (summary?.by_severity?.MEDIUM || 0) > 0 ? 'text-yellow-600' :
-                      'text-green-600'
-                    }`}>
-                      {(summary?.by_severity?.CRITICAL || 0) > 0 ? 'Critical' :
-                       (summary?.by_severity?.HIGH || 0) > 0 ? 'High' :
-                       (summary?.by_severity?.MEDIUM || 0) > 0 ? 'Medium' :
-                       findingsCount > 0 ? 'Low' : 'Minimal'}
-                    </span>
-                  </div>
-                  {/* Risk Bar */}
-                  <div className="h-3 bg-gray-100 rounded-full overflow-hidden flex">
-                    {(summary?.by_severity?.CRITICAL || 0) > 0 && (
-                      <div
-                        className="bg-red-500 h-full"
-                        style={{ width: `${((summary?.by_severity?.CRITICAL || 0) / Math.max(findingsCount, 1)) * 100}%` }}
-                      />
-                    )}
-                    {(summary?.by_severity?.HIGH || 0) > 0 && (
-                      <div
-                        className="bg-orange-500 h-full"
-                        style={{ width: `${((summary?.by_severity?.HIGH || 0) / Math.max(findingsCount, 1)) * 100}%` }}
-                      />
-                    )}
-                    {(summary?.by_severity?.MEDIUM || 0) > 0 && (
-                      <div
-                        className="bg-yellow-500 h-full"
-                        style={{ width: `${((summary?.by_severity?.MEDIUM || 0) / Math.max(findingsCount, 1)) * 100}%` }}
-                      />
-                    )}
-                    {(summary?.by_severity?.LOW || 0) > 0 && (
-                      <div
-                        className="bg-green-500 h-full"
-                        style={{ width: `${((summary?.by_severity?.LOW || 0) / Math.max(findingsCount, 1)) * 100}%` }}
-                      />
-                    )}
-                    {findingsCount === 0 && (
-                      <div className="bg-green-500 h-full w-full" />
-                    )}
-                  </div>
-                </div>
+              (() => {
+                // Get counts (handle both uppercase and lowercase keys from API)
+                const bySeverity = summary?.by_severity || {};
+                const critical = (bySeverity.CRITICAL || 0) + (bySeverity.critical || 0);
+                const high = (bySeverity.HIGH || 0) + (bySeverity.high || 0);
+                const medium = (bySeverity.MEDIUM || 0) + (bySeverity.medium || 0);
+                const low = (bySeverity.LOW || 0) + (bySeverity.low || 0);
+                const total = findingsCount || (critical + high + medium + low);
 
-                {/* Risk Score */}
-                <div className="bg-gray-50 rounded-lg p-3">
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm text-gray-600">Risk Score</span>
-                    <div className="flex items-center space-x-1">
-                      <span className="text-2xl font-bold text-gray-800">
-                        {(() => {
-                          const critical = summary?.by_severity?.CRITICAL || 0;
-                          const high = summary?.by_severity?.HIGH || 0;
-                          const medium = summary?.by_severity?.MEDIUM || 0;
-                          const low = summary?.by_severity?.LOW || 0;
-                          // Weighted score: Critical=40pts (max 2), High=20pts (max 3), Medium=8pts (max 5), Low=2pts
-                          const score = Math.min(critical, 2) * 40 + Math.min(high, 3) * 20 + Math.min(medium, 5) * 8 + Math.min(low, 10) * 2;
-                          return Math.min(100, score);
-                        })()}
-                      </span>
-                      <span className="text-sm text-gray-500">/100</span>
+                // Calculate risk score
+                const riskScore = Math.min(100,
+                  Math.min(critical, 2) * 40 +
+                  Math.min(high, 3) * 20 +
+                  Math.min(medium, 5) * 8 +
+                  Math.min(low, 10) * 2
+                );
+
+                // Determine overall risk level
+                const overallRisk = critical > 0 ? 'Critical' :
+                  high > 0 ? 'High' :
+                  medium > 0 ? 'Medium' :
+                  low > 0 ? 'Low' : 'Minimal';
+
+                const riskColor = critical > 0 ? 'text-red-600' :
+                  high > 0 ? 'text-orange-600' :
+                  medium > 0 ? 'text-yellow-600' : 'text-green-600';
+
+                return (
+                  <div className="space-y-4">
+                    {/* Risk Level Indicator */}
+                    <div>
+                      <div className="flex justify-between items-center mb-2">
+                        <span className="text-sm text-gray-600">Overall Risk</span>
+                        <span className={`text-sm font-semibold ${riskColor}`}>
+                          {overallRisk}
+                        </span>
+                      </div>
+                      {/* Risk Bar */}
+                      <div className="h-3 bg-gray-100 rounded-full overflow-hidden flex">
+                        {critical > 0 && (
+                          <div
+                            className="bg-red-500 h-full"
+                            style={{ width: `${(critical / Math.max(total, 1)) * 100}%` }}
+                          />
+                        )}
+                        {high > 0 && (
+                          <div
+                            className="bg-orange-500 h-full"
+                            style={{ width: `${(high / Math.max(total, 1)) * 100}%` }}
+                          />
+                        )}
+                        {medium > 0 && (
+                          <div
+                            className="bg-yellow-500 h-full"
+                            style={{ width: `${(medium / Math.max(total, 1)) * 100}%` }}
+                          />
+                        )}
+                        {low > 0 && (
+                          <div
+                            className="bg-green-500 h-full"
+                            style={{ width: `${(low / Math.max(total, 1)) * 100}%` }}
+                          />
+                        )}
+                        {total === 0 && (
+                          <div className="bg-green-500 h-full w-full" />
+                        )}
+                      </div>
                     </div>
-                  </div>
-                  <p className="text-xs text-gray-500 mt-1">
-                    Based on {findingsCount} finding{findingsCount !== 1 ? 's' : ''} detected
-                  </p>
-                </div>
 
-                {/* Trend Indicator */}
-                <div className="flex items-center justify-between text-sm">
-                  <span className="text-gray-600">Trend</span>
-                  <div className="flex items-center space-x-1">
-                    {findingsCount === 0 ? (
-                      <>
-                        <TrendingDown size={14} className="text-green-500" />
-                        <span className="text-green-600">No issues</span>
-                      </>
-                    ) : (summary?.by_severity?.CRITICAL || 0) > 0 || (summary?.by_severity?.HIGH || 0) > 2 ? (
-                      <>
-                        <TrendingUp size={14} className="text-red-500" />
-                        <span className="text-red-600">Needs attention</span>
-                      </>
-                    ) : (
-                      <>
-                        <Minus size={14} className="text-yellow-500" />
-                        <span className="text-yellow-600">Monitor</span>
-                      </>
+                    {/* Risk Score */}
+                    <div className="bg-gray-50 rounded-lg p-3">
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm text-gray-600">Risk Score</span>
+                        <div className="flex items-center space-x-1">
+                          <span className={`text-2xl font-bold ${
+                            riskScore >= 60 ? 'text-red-600' :
+                            riskScore >= 40 ? 'text-orange-600' :
+                            riskScore >= 20 ? 'text-yellow-600' : 'text-green-600'
+                          }`}>
+                            {riskScore}
+                          </span>
+                          <span className="text-sm text-gray-500">/100</span>
+                        </div>
+                      </div>
+                      <p className="text-xs text-gray-500 mt-1">
+                        Based on {total} finding{total !== 1 ? 's' : ''} detected
+                      </p>
+                    </div>
+
+                    {/* Categories Affected */}
+                    {summary?.by_category && Object.keys(summary.by_category).length > 0 && (
+                      <div>
+                        <span className="text-xs text-gray-500 mb-2 block">Categories Affected</span>
+                        <div className="flex flex-wrap gap-1">
+                          {Object.entries(summary.by_category)
+                            .sort(([, a], [, b]) => (b as number) - (a as number))
+                            .slice(0, 4)
+                            .map(([category, count]) => (
+                              <span
+                                key={category}
+                                className="text-xs px-2 py-1 bg-gray-100 text-gray-700 rounded capitalize"
+                              >
+                                {category.replace(/_/g, ' ')} ({count as number})
+                              </span>
+                            ))}
+                        </div>
+                      </div>
                     )}
                   </div>
-                </div>
-              </div>
+                );
+              })()
             )}
           </div>
 
@@ -612,43 +637,48 @@ export default function ContractDetailPage() {
                 </Link>
               </div>
               <div className="space-y-3">
-                {topFindings.map((finding) => (
-                  <div
-                    key={finding.finding_id}
-                    className={`p-3 rounded-lg border-l-4 ${
-                      finding.severity === 'CRITICAL' ? 'bg-red-50 border-red-500' :
-                      finding.severity === 'HIGH' ? 'bg-orange-50 border-orange-500' :
-                      finding.severity === 'MEDIUM' ? 'bg-yellow-50 border-yellow-500' :
-                      'bg-green-50 border-green-500'
-                    }`}
-                  >
-                    <div className="flex items-start justify-between">
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2 mb-1">
-                          <span className={`text-xs font-medium px-2 py-0.5 rounded ${
-                            finding.severity === 'CRITICAL' ? 'bg-red-100 text-red-700' :
-                            finding.severity === 'HIGH' ? 'bg-orange-100 text-orange-700' :
-                            finding.severity === 'MEDIUM' ? 'bg-yellow-100 text-yellow-700' :
-                            'bg-green-100 text-green-700'
-                          }`}>
-                            {finding.severity}
-                          </span>
-                          <span className="text-xs text-gray-500 capitalize">
-                            {finding.leakage_category?.replace(/_/g, ' ')}
-                          </span>
-                        </div>
-                        <p className="text-sm font-medium text-gray-800 line-clamp-1">
-                          {finding.rule_id?.replace(/_/g, ' ') || finding.risk_type}
-                        </p>
-                        {finding.estimated_impact?.value && (
-                          <p className="text-xs text-gray-600 mt-1">
-                            Impact: {formatCurrency(finding.estimated_impact.value, finding.estimated_impact.currency)}
+                {topFindings.map((finding) => {
+                  const severity = formatSeverity(finding.severity);
+                  const hasImpact = finding.estimated_impact?.value && finding.estimated_impact.value > 0;
+
+                  return (
+                    <div
+                      key={finding.finding_id || finding.id}
+                      className={`p-3 rounded-lg border-l-4 ${
+                        severity === 'CRITICAL' ? 'bg-red-50 border-red-500' :
+                        severity === 'HIGH' ? 'bg-orange-50 border-orange-500' :
+                        severity === 'MEDIUM' ? 'bg-yellow-50 border-yellow-500' :
+                        'bg-green-50 border-green-500'
+                      }`}
+                    >
+                      <div className="flex items-start justify-between">
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2 mb-1">
+                            <span className={`text-xs font-medium px-2 py-0.5 rounded ${
+                              severity === 'CRITICAL' ? 'bg-red-100 text-red-700' :
+                              severity === 'HIGH' ? 'bg-orange-100 text-orange-700' :
+                              severity === 'MEDIUM' ? 'bg-yellow-100 text-yellow-700' :
+                              'bg-green-100 text-green-700'
+                            }`}>
+                              {severity}
+                            </span>
+                            <span className="text-xs text-gray-500 capitalize">
+                              {finding.leakage_category?.replace(/_/g, ' ')}
+                            </span>
+                          </div>
+                          <p className="text-sm font-medium text-gray-800 line-clamp-1">
+                            {finding.rule_id?.replace(/_/g, ' ') || finding.risk_type}
                           </p>
-                        )}
+                          {hasImpact && (
+                            <p className="text-xs text-gray-600 mt-1">
+                              Impact: {formatCurrency(finding.estimated_impact!.value!, finding.estimated_impact!.currency)}
+                            </p>
+                          )}
+                        </div>
                       </div>
                     </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             </div>
           )}
