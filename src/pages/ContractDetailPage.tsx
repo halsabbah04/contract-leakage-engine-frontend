@@ -128,9 +128,21 @@ export default function ContractDetailPage() {
   });
 
   // Fetch findings summary
-  const { summary, totalCount: findingsCount, isLoading: findingsLoading } = useFindings(
+  const { findings, summary, totalCount: findingsCount, isLoading: findingsLoading } = useFindings(
     contractId || ''
   );
+
+  // Get top findings sorted by severity
+  const getTopFindings = () => {
+    if (!findings || findings.length === 0) return [];
+
+    const severityOrder = { CRITICAL: 0, HIGH: 1, MEDIUM: 2, LOW: 3, INFO: 4 };
+    return [...findings]
+      .sort((a, b) => (severityOrder[a.severity as keyof typeof severityOrder] || 4) - (severityOrder[b.severity as keyof typeof severityOrder] || 4))
+      .slice(0, 3);
+  };
+
+  const topFindings = getTopFindings();
 
   // Fetch clauses summary
   const { totalCount: clausesCount, isLoading: clausesLoading } = useClauses(contractId || '');
@@ -542,12 +554,15 @@ export default function ContractDetailPage() {
                     <span className="text-sm text-gray-600">Risk Score</span>
                     <div className="flex items-center space-x-1">
                       <span className="text-2xl font-bold text-gray-800">
-                        {Math.min(100, Math.round(
-                          ((summary?.by_severity?.CRITICAL || 0) * 40 +
-                           (summary?.by_severity?.HIGH || 0) * 25 +
-                           (summary?.by_severity?.MEDIUM || 0) * 10 +
-                           (summary?.by_severity?.LOW || 0) * 3)
-                        ))}
+                        {(() => {
+                          const critical = summary?.by_severity?.CRITICAL || 0;
+                          const high = summary?.by_severity?.HIGH || 0;
+                          const medium = summary?.by_severity?.MEDIUM || 0;
+                          const low = summary?.by_severity?.LOW || 0;
+                          // Weighted score: Critical=40pts (max 2), High=20pts (max 3), Medium=8pts (max 5), Low=2pts
+                          const score = Math.min(critical, 2) * 40 + Math.min(high, 3) * 20 + Math.min(medium, 5) * 8 + Math.min(low, 10) * 2;
+                          return Math.min(100, score);
+                        })()}
                       </span>
                       <span className="text-sm text-gray-500">/100</span>
                     </div>
@@ -584,7 +599,7 @@ export default function ContractDetailPage() {
           </div>
 
           {/* Top Findings Preview */}
-          {findingsCount > 0 && (
+          {topFindings.length > 0 && (
             <div className="card-compact">
               <div className="flex items-center justify-between mb-4">
                 <h3 className="font-semibold">Top Findings</h3>
@@ -597,43 +612,43 @@ export default function ContractDetailPage() {
                 </Link>
               </div>
               <div className="space-y-3">
-                {/* Show top 3 findings by severity */}
-                {[
-                  ...(summary?.by_severity?.CRITICAL ? Array(Math.min(summary.by_severity.CRITICAL, 2)).fill('CRITICAL') : []),
-                  ...(summary?.by_severity?.HIGH ? Array(Math.min(summary.by_severity.HIGH, 2)).fill('HIGH') : []),
-                  ...(summary?.by_severity?.MEDIUM ? Array(Math.min(summary.by_severity.MEDIUM, 1)).fill('MEDIUM') : []),
-                ].slice(0, 3).map((severity, index) => (
+                {topFindings.map((finding) => (
                   <div
-                    key={index}
+                    key={finding.finding_id}
                     className={`p-3 rounded-lg border-l-4 ${
-                      severity === 'CRITICAL' ? 'bg-red-50 border-red-500' :
-                      severity === 'HIGH' ? 'bg-orange-50 border-orange-500' :
-                      'bg-yellow-50 border-yellow-500'
+                      finding.severity === 'CRITICAL' ? 'bg-red-50 border-red-500' :
+                      finding.severity === 'HIGH' ? 'bg-orange-50 border-orange-500' :
+                      finding.severity === 'MEDIUM' ? 'bg-yellow-50 border-yellow-500' :
+                      'bg-green-50 border-green-500'
                     }`}
                   >
                     <div className="flex items-start justify-between">
                       <div className="flex-1 min-w-0">
-                        <span className={`text-xs font-medium px-2 py-0.5 rounded ${
-                          severity === 'CRITICAL' ? 'bg-red-100 text-red-700' :
-                          severity === 'HIGH' ? 'bg-orange-100 text-orange-700' :
-                          'bg-yellow-100 text-yellow-700'
-                        }`}>
-                          {severity}
-                        </span>
-                        <p className="text-sm text-gray-700 mt-1 line-clamp-2">
-                          {severity === 'CRITICAL' ? 'Critical risk requiring immediate review' :
-                           severity === 'HIGH' ? 'High priority issue identified' :
-                           'Medium risk item to address'}
+                        <div className="flex items-center gap-2 mb-1">
+                          <span className={`text-xs font-medium px-2 py-0.5 rounded ${
+                            finding.severity === 'CRITICAL' ? 'bg-red-100 text-red-700' :
+                            finding.severity === 'HIGH' ? 'bg-orange-100 text-orange-700' :
+                            finding.severity === 'MEDIUM' ? 'bg-yellow-100 text-yellow-700' :
+                            'bg-green-100 text-green-700'
+                          }`}>
+                            {finding.severity}
+                          </span>
+                          <span className="text-xs text-gray-500 capitalize">
+                            {finding.leakage_category?.replace(/_/g, ' ')}
+                          </span>
+                        </div>
+                        <p className="text-sm font-medium text-gray-800 line-clamp-1">
+                          {finding.rule_id?.replace(/_/g, ' ') || finding.risk_type}
                         </p>
+                        {finding.estimated_impact?.value && (
+                          <p className="text-xs text-gray-600 mt-1">
+                            Impact: {formatCurrency(finding.estimated_impact.value, finding.estimated_impact.currency)}
+                          </p>
+                        )}
                       </div>
                     </div>
                   </div>
                 ))}
-                {findingsCount === 0 && (
-                  <p className="text-sm text-gray-500 text-center py-2">
-                    No findings to display
-                  </p>
-                )}
               </div>
             </div>
           )}
