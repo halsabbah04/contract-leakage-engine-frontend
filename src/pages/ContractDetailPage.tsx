@@ -13,11 +13,25 @@ import {
   XCircle,
   Loader2,
   RefreshCw,
-  Globe,
   Eye,
   ShieldAlert,
   ArrowRight,
 } from 'lucide-react';
+
+// Type for severity counts from API (can be uppercase or lowercase)
+interface SeverityCounts {
+  CRITICAL?: number;
+  critical?: number;
+  HIGH?: number;
+  high?: number;
+  MEDIUM?: number;
+  medium?: number;
+  LOW?: number;
+  low?: number;
+  INFO?: number;
+  info?: number;
+  [key: string]: number | undefined;
+}
 import { contractService } from '../services';
 import { useFindings } from '../hooks/useFindings';
 import { useClauses } from '../hooks/useClauses';
@@ -511,7 +525,7 @@ export default function ContractDetailPage() {
             ) : (
               (() => {
                 // Get counts (handle both uppercase and lowercase keys from API)
-                const bySeverity = summary?.by_severity || {};
+                const bySeverity = (summary?.by_severity || {}) as SeverityCounts;
                 const critical = (bySeverity.CRITICAL || 0) + (bySeverity.critical || 0);
                 const high = (bySeverity.HIGH || 0) + (bySeverity.high || 0);
                 const medium = (bySeverity.MEDIUM || 0) + (bySeverity.medium || 0);
