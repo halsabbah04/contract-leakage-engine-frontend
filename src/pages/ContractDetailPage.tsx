@@ -15,6 +15,11 @@ import {
   RefreshCw,
   Globe,
   Eye,
+  TrendingUp,
+  TrendingDown,
+  Minus,
+  ShieldAlert,
+  ArrowRight,
 } from 'lucide-react';
 import { contractService } from '../services';
 import { useFindings } from '../hooks/useFindings';
@@ -471,38 +476,167 @@ export default function ContractDetailPage() {
             </div>
           </div>
 
-          {/* Quick Actions Card */}
+          {/* Risk Profile Card */}
           <div className="card-compact">
-            <h3 className="font-semibold mb-4">Quick Actions</h3>
-            <div className="space-y-2">
-              <button
-                onClick={handleViewDocument}
-                disabled={documentLoading}
-                className="btn btn-primary w-full flex items-center justify-center"
-              >
-                {documentLoading ? (
-                  <Loader2 size={16} className="mr-2 animate-spin" />
-                ) : (
-                  <Eye size={16} className="mr-2" />
-                )}
-                View Document
-              </button>
-              <Link
-                to={`/contract/${contractId}/findings`}
-                className="btn btn-secondary w-full flex items-center justify-center"
-              >
-                <AlertTriangle size={16} className="mr-2" />
-                View Findings
-              </Link>
-              <Link
-                to={`/contract/${contractId}/clauses`}
-                className="btn btn-secondary w-full flex items-center justify-center"
-              >
-                <FileSearch size={16} className="mr-2" />
-                View Clauses
-              </Link>
+            <div className="flex items-center space-x-2 mb-4">
+              <ShieldAlert size={18} className="text-primary" />
+              <h3 className="font-semibold">Risk Profile</h3>
             </div>
+            {findingsLoading ? (
+              <div className="flex items-center justify-center py-4">
+                <Loader2 size={20} className="animate-spin text-primary" />
+              </div>
+            ) : (
+              <div className="space-y-4">
+                {/* Risk Level Indicator */}
+                <div>
+                  <div className="flex justify-between items-center mb-2">
+                    <span className="text-sm text-gray-600">Overall Risk</span>
+                    <span className={`text-sm font-semibold ${
+                      (summary?.by_severity?.CRITICAL || 0) > 0 ? 'text-red-600' :
+                      (summary?.by_severity?.HIGH || 0) > 0 ? 'text-orange-600' :
+                      (summary?.by_severity?.MEDIUM || 0) > 0 ? 'text-yellow-600' :
+                      'text-green-600'
+                    }`}>
+                      {(summary?.by_severity?.CRITICAL || 0) > 0 ? 'Critical' :
+                       (summary?.by_severity?.HIGH || 0) > 0 ? 'High' :
+                       (summary?.by_severity?.MEDIUM || 0) > 0 ? 'Medium' :
+                       findingsCount > 0 ? 'Low' : 'Minimal'}
+                    </span>
+                  </div>
+                  {/* Risk Bar */}
+                  <div className="h-3 bg-gray-100 rounded-full overflow-hidden flex">
+                    {(summary?.by_severity?.CRITICAL || 0) > 0 && (
+                      <div
+                        className="bg-red-500 h-full"
+                        style={{ width: `${((summary?.by_severity?.CRITICAL || 0) / Math.max(findingsCount, 1)) * 100}%` }}
+                      />
+                    )}
+                    {(summary?.by_severity?.HIGH || 0) > 0 && (
+                      <div
+                        className="bg-orange-500 h-full"
+                        style={{ width: `${((summary?.by_severity?.HIGH || 0) / Math.max(findingsCount, 1)) * 100}%` }}
+                      />
+                    )}
+                    {(summary?.by_severity?.MEDIUM || 0) > 0 && (
+                      <div
+                        className="bg-yellow-500 h-full"
+                        style={{ width: `${((summary?.by_severity?.MEDIUM || 0) / Math.max(findingsCount, 1)) * 100}%` }}
+                      />
+                    )}
+                    {(summary?.by_severity?.LOW || 0) > 0 && (
+                      <div
+                        className="bg-green-500 h-full"
+                        style={{ width: `${((summary?.by_severity?.LOW || 0) / Math.max(findingsCount, 1)) * 100}%` }}
+                      />
+                    )}
+                    {findingsCount === 0 && (
+                      <div className="bg-green-500 h-full w-full" />
+                    )}
+                  </div>
+                </div>
+
+                {/* Risk Score */}
+                <div className="bg-gray-50 rounded-lg p-3">
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm text-gray-600">Risk Score</span>
+                    <div className="flex items-center space-x-1">
+                      <span className="text-2xl font-bold text-gray-800">
+                        {Math.min(100, Math.round(
+                          ((summary?.by_severity?.CRITICAL || 0) * 40 +
+                           (summary?.by_severity?.HIGH || 0) * 25 +
+                           (summary?.by_severity?.MEDIUM || 0) * 10 +
+                           (summary?.by_severity?.LOW || 0) * 3)
+                        ))}
+                      </span>
+                      <span className="text-sm text-gray-500">/100</span>
+                    </div>
+                  </div>
+                  <p className="text-xs text-gray-500 mt-1">
+                    Based on {findingsCount} finding{findingsCount !== 1 ? 's' : ''} detected
+                  </p>
+                </div>
+
+                {/* Trend Indicator */}
+                <div className="flex items-center justify-between text-sm">
+                  <span className="text-gray-600">Trend</span>
+                  <div className="flex items-center space-x-1">
+                    {findingsCount === 0 ? (
+                      <>
+                        <TrendingDown size={14} className="text-green-500" />
+                        <span className="text-green-600">No issues</span>
+                      </>
+                    ) : (summary?.by_severity?.CRITICAL || 0) > 0 || (summary?.by_severity?.HIGH || 0) > 2 ? (
+                      <>
+                        <TrendingUp size={14} className="text-red-500" />
+                        <span className="text-red-600">Needs attention</span>
+                      </>
+                    ) : (
+                      <>
+                        <Minus size={14} className="text-yellow-500" />
+                        <span className="text-yellow-600">Monitor</span>
+                      </>
+                    )}
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
+
+          {/* Top Findings Preview */}
+          {findingsCount > 0 && (
+            <div className="card-compact">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="font-semibold">Top Findings</h3>
+                <Link
+                  to={`/contract/${contractId}/findings`}
+                  className="text-xs text-primary hover:underline flex items-center"
+                >
+                  View all
+                  <ArrowRight size={12} className="ml-1" />
+                </Link>
+              </div>
+              <div className="space-y-3">
+                {/* Show top 3 findings by severity */}
+                {[
+                  ...(summary?.by_severity?.CRITICAL ? Array(Math.min(summary.by_severity.CRITICAL, 2)).fill('CRITICAL') : []),
+                  ...(summary?.by_severity?.HIGH ? Array(Math.min(summary.by_severity.HIGH, 2)).fill('HIGH') : []),
+                  ...(summary?.by_severity?.MEDIUM ? Array(Math.min(summary.by_severity.MEDIUM, 1)).fill('MEDIUM') : []),
+                ].slice(0, 3).map((severity, index) => (
+                  <div
+                    key={index}
+                    className={`p-3 rounded-lg border-l-4 ${
+                      severity === 'CRITICAL' ? 'bg-red-50 border-red-500' :
+                      severity === 'HIGH' ? 'bg-orange-50 border-orange-500' :
+                      'bg-yellow-50 border-yellow-500'
+                    }`}
+                  >
+                    <div className="flex items-start justify-between">
+                      <div className="flex-1 min-w-0">
+                        <span className={`text-xs font-medium px-2 py-0.5 rounded ${
+                          severity === 'CRITICAL' ? 'bg-red-100 text-red-700' :
+                          severity === 'HIGH' ? 'bg-orange-100 text-orange-700' :
+                          'bg-yellow-100 text-yellow-700'
+                        }`}>
+                          {severity}
+                        </span>
+                        <p className="text-sm text-gray-700 mt-1 line-clamp-2">
+                          {severity === 'CRITICAL' ? 'Critical risk requiring immediate review' :
+                           severity === 'HIGH' ? 'High priority issue identified' :
+                           'Medium risk item to address'}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+                {findingsCount === 0 && (
+                  <p className="text-sm text-gray-500 text-center py-2">
+                    No findings to display
+                  </p>
+                )}
+              </div>
+            </div>
+          )}
 
           {/* Critical Findings Alert */}
           {(summary?.by_severity?.CRITICAL || 0) > 0 && (
