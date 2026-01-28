@@ -122,4 +122,32 @@ export const contractService = {
     // Cleanup
     window.URL.revokeObjectURL(url);
   },
+
+  /**
+   * Get document URL for viewing the original contract
+   */
+  async getDocumentUrl(
+    contractId: string,
+    expiryHours: number = 1
+  ): Promise<{ document_url: string; filename: string; content_type: string }> {
+    const response = await apiClient.get<{
+      contract_id: string;
+      document_url: string;
+      filename: string;
+      content_type: string;
+      expires_in_hours: number;
+    }>(`/get_document/${contractId}`, {
+      params: { expiry_hours: expiryHours },
+    });
+
+    return response.data;
+  },
+
+  /**
+   * Open the original contract document in a new tab
+   */
+  async viewDocument(contractId: string): Promise<void> {
+    const { document_url } = await this.getDocumentUrl(contractId);
+    window.open(document_url, '_blank');
+  },
 };
