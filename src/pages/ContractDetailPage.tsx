@@ -35,6 +35,7 @@ interface SeverityCounts {
 import { contractService } from '../services';
 import { useFindings } from '../hooks/useFindings';
 import { useClauses } from '../hooks/useClauses';
+import { useObligations } from '../hooks/useObligations';
 import type { Contract } from '@contract-leakage/shared-types';
 import { useState } from 'react';
 import DocumentViewerModal from '../components/common/DocumentViewerModal';
@@ -171,6 +172,9 @@ export default function ContractDetailPage() {
 
   // Fetch clauses summary
   const { totalCount: clausesCount, isLoading: clausesLoading } = useClauses(contractId || '');
+
+  // Fetch obligations summary
+  const { obligations, summary: obligationsSummary, isLoading: obligationsLoading } = useObligations(contractId || '');
 
   const handleExport = async (format: 'pdf' | 'excel') => {
     if (!contractId) return;
@@ -479,6 +483,92 @@ export default function ContractDetailPage() {
               </div>
             )}
           </div>
+
+          {/* Obligations Summary Card */}
+          <div className="card">
+            <div className="flex items-center justify-between mb-6">
+              <div className="flex items-center space-x-3">
+                <Calendar className="text-purple-500" size={24} />
+                <h2 className="text-xl font-semibold">Contract Obligations</h2>
+              </div>
+              <Link
+                to={`/contract/${contractId}/obligations`}
+                className="text-primary hover:underline text-sm font-medium"
+              >
+                View All Obligations →
+              </Link>
+            </div>
+
+            {obligationsLoading ? (
+              <div className="flex items-center justify-center py-8">
+                <Loader2 size={24} className="animate-spin text-primary" />
+              </div>
+            ) : obligations.length === 0 ? (
+              <div className="text-center py-8 text-gray-500">
+                <Calendar size={32} className="mx-auto mb-2 text-gray-300" />
+                <p>No obligations found in this contract</p>
+                <p className="text-xs mt-1">Obligations are extracted automatically during analysis</p>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                {/* Status breakdown */}
+                <div className="grid grid-cols-3 gap-4">
+                  <div className="bg-red-50 rounded-lg p-4 text-center">
+                    <p className="text-2xl font-bold text-red-600">
+                      {obligationsSummary?.overdue_count || 0}
+                    </p>
+                    <p className="text-sm text-red-700">Overdue</p>
+                  </div>
+                  <div className="bg-yellow-50 rounded-lg p-4 text-center">
+                    <p className="text-2xl font-bold text-yellow-600">
+                      {obligationsSummary?.due_soon_count || 0}
+                    </p>
+                    <p className="text-sm text-yellow-700">Due Soon</p>
+                  </div>
+                  <div className="bg-green-50 rounded-lg p-4 text-center">
+                    <p className="text-2xl font-bold text-green-600">
+                      {obligationsSummary?.upcoming_count || 0}
+                    </p>
+                    <p className="text-sm text-green-700">Upcoming</p>
+                  </div>
+                </div>
+
+                {/* Payment obligations summary */}
+                {obligationsSummary && (obligationsSummary.our_payment_obligations > 0 || obligationsSummary.their_payment_obligations > 0) && (
+                  <div className="bg-purple-50 rounded-lg p-4">
+                    <p className="text-sm text-purple-600 mb-2">Payment Obligations</p>
+                    <div className="flex justify-between">
+                      <div>
+                        <p className="text-xs text-gray-500">Our Payments</p>
+                        <p className="font-semibold text-gray-800">
+                          {formatCurrency(obligationsSummary.our_payment_obligations)}
+                        </p>
+                      </div>
+                      <div className="text-right">
+                        <p className="text-xs text-gray-500">Their Payments</p>
+                        <p className="font-semibold text-gray-800">
+                          {formatCurrency(obligationsSummary.their_payment_obligations)}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Next deadline */}
+                {obligationsSummary?.next_due_date && (
+                  <div className="bg-gray-50 rounded-lg p-3 flex items-center justify-between">
+                    <div>
+                      <p className="text-xs text-gray-500">Next Deadline</p>
+                      <p className="font-medium text-gray-800">{obligationsSummary.next_obligation_title}</p>
+                    </div>
+                    <p className="text-sm font-semibold text-primary">
+                      {formatDate(obligationsSummary.next_due_date)}
+                    </p>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
         </div>
 
         {/* Sidebar */}
@@ -504,6 +594,10 @@ export default function ContractDetailPage() {
               <div className="flex justify-between items-center">
                 <span className="text-gray-600">Total Clauses</span>
                 <span className="font-semibold">{clausesCount}</span>
+              </div>
+              <div className="flex justify-between items-center">
+                <span className="text-gray-600">Obligations</span>
+                <span className="font-semibold">{obligations.length}</span>
               </div>
               <div className="flex justify-between items-center">
                 <span className="text-gray-600">Last Updated</span>
@@ -713,6 +807,28 @@ export default function ContractDetailPage() {
                     className="text-sm text-red-800 font-medium hover:underline mt-2 inline-block"
                   >
                     Review Critical Findings →
+                  </Link>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Overdue Obligations Alert */}
+          {(obligationsSummary?.overdue_count || 0) > 0 && (
+            <div className="bg-orange-50 border border-orange-200 rounded-lg p-4">
+              <div className="flex items-start space-x-3">
+                <Clock className="text-orange-600 flex-shrink-0" size={20} />
+                <div>
+                  <h4 className="font-semibold text-orange-800">Overdue Obligations</h4>
+                  <p className="text-sm text-orange-700 mt-1">
+                    This contract has {obligationsSummary?.overdue_count} overdue obligation(s) that
+                    need immediate action.
+                  </p>
+                  <Link
+                    to={`/contract/${contractId}/obligations`}
+                    className="text-sm text-orange-800 font-medium hover:underline mt-2 inline-block"
+                  >
+                    Review Obligations →
                   </Link>
                 </div>
               </div>

@@ -6,6 +6,7 @@ import ContractsPage from '@pages/ContractsPage';
 import ContractDetailPage from '@pages/ContractDetailPage';
 import FindingsPage from '@pages/FindingsPage';
 import ClausesPage from '@pages/ClausesPage';
+import ObligationsPage from '@pages/ObligationsPage';
 import NotFoundPage from '@pages/NotFoundPage';
 
 function App() {
@@ -18,6 +19,7 @@ function App() {
         <Route path="contract/:contractId" element={<ContractDetailPage />} />
         <Route path="contract/:contractId/findings" element={<FindingsPage />} />
         <Route path="contract/:contractId/clauses" element={<ClausesPage />} />
+        <Route path="contract/:contractId/obligations" element={<ObligationsPage />} />
         <Route path="*" element={<NotFoundPage />} />
       </Route>
     </Routes>

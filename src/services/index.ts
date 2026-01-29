@@ -7,3 +7,4 @@ export { contractService } from './contractService';
 export { findingsService } from './findingsService';
 export { clausesService } from './clausesService';
 export { overridesService } from './overridesService';
+export { obligationsService } from './obligationsService';

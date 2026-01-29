@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect, useRef } from 'react';
 import { FileText, AlertCircle } from 'lucide-react';
 import ClauseCard from './ClauseCard';
 import ClausesFilterBar from './ClausesFilterBar';
@@ -14,6 +14,22 @@ export default function ClausesList({ clauses, highlightClauseIds = [] }: Clause
   const [showRiskyOnly, setShowRiskyOnly] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [sortBy, setSortBy] = useState<'type' | 'confidence' | 'section'>('type');
+  const firstHighlightedRef = useRef<HTMLDivElement>(null);
+  const hasScrolledRef = useRef(false);
+
+  // Auto-scroll to first highlighted clause
+  useEffect(() => {
+    if (highlightClauseIds.length > 0 && firstHighlightedRef.current && !hasScrolledRef.current) {
+      // Small delay to ensure DOM is ready
+      setTimeout(() => {
+        firstHighlightedRef.current?.scrollIntoView({
+          behavior: 'smooth',
+          block: 'center',
+        });
+        hasScrolledRef.current = true;
+      }, 100);
+    }
+  }, [highlightClauseIds]);
 
   // Client-side filtering and sorting
   const filteredAndSortedClauses = useMemo(() => {
@@ -43,6 +59,14 @@ export default function ClausesList({ clauses, highlightClauseIds = [] }: Clause
 
     // Apply sorting
     const sorted = [...filtered].sort((a, b) => {
+      // Always put highlighted clauses first when there are highlighted IDs
+      if (highlightClauseIds.length > 0) {
+        const aHighlighted = highlightClauseIds.includes(a.id);
+        const bHighlighted = highlightClauseIds.includes(b.id);
+        if (aHighlighted && !bHighlighted) return -1;
+        if (!aHighlighted && bHighlighted) return 1;
+      }
+
       switch (sortBy) {
         case 'type':
           return a.clause_type.localeCompare(b.clause_type);
@@ -58,7 +82,7 @@ export default function ClausesList({ clauses, highlightClauseIds = [] }: Clause
     });
 
     return sorted;
-  }, [clauses, selectedType, showRiskyOnly, searchQuery, sortBy]);
+  }, [clauses, selectedType, showRiskyOnly, searchQuery, sortBy, highlightClauseIds]);
 
   // Empty state - no clauses
   if (clauses.length === 0) {
@@ -144,14 +168,24 @@ export default function ClausesList({ clauses, highlightClauseIds = [] }: Clause
 
       {/* Clauses Cards */}
       <div className="space-y-4">
-        {filteredAndSortedClauses.map((clause) => (
-          <ClauseCard
-            key={clause.id}
-            clause={clause}
-            highlighted={highlightClauseIds.includes(clause.id)}
-            searchQuery={searchQuery}
-          />
-        ))}
+        {filteredAndSortedClauses.map((clause, index) => {
+          const isHighlighted = highlightClauseIds.includes(clause.id);
+          const isFirstHighlighted = isHighlighted &&
+            filteredAndSortedClauses.findIndex(c => highlightClauseIds.includes(c.id)) === index;
+
+          return (
+            <div
+              key={clause.id}
+              ref={isFirstHighlighted ? firstHighlightedRef : undefined}
+            >
+              <ClauseCard
+                clause={clause}
+                highlighted={isHighlighted}
+                searchQuery={searchQuery}
+              />
+            </div>
+          );
+        })}
       </div>
     </div>
   );
