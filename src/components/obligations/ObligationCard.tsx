@@ -236,12 +236,7 @@ export default function ObligationCard({
             {/* Responsible Party */}
             <div className="flex items-center space-x-1">
               <User size={14} />
-              <span>
-                {obligation.responsible_party.party_name}
-                {obligation.responsible_party.is_our_organization && (
-                  <span className="ml-1 text-xs text-primary">(Our responsibility)</span>
-                )}
-              </span>
+              <span>{obligation.responsible_party.party_name}</span>
             </div>
           </div>
         </div>
@@ -313,18 +308,12 @@ export default function ObligationCard({
               <h4 className="text-sm font-semibold text-gray-800 mb-3">Responsibility</h4>
               <div className="space-y-2 text-sm">
                 <div className="flex justify-between">
-                  <span className="text-gray-600">Party:</span>
+                  <span className="text-gray-600">Responsible Party:</span>
                   <span className="font-medium">{obligation.responsible_party.party_name}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-gray-600">Role:</span>
+                  <span className="text-gray-600">Party Role:</span>
                   <span className="font-medium">{formatCategory(obligation.responsible_party.party_role)}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-600">Our Organization:</span>
-                  <span className="font-medium">
-                    {obligation.responsible_party.is_our_organization ? 'Yes' : 'No'}
-                  </span>
                 </div>
               </div>
             </div>
