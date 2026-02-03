@@ -10,6 +10,7 @@ export * from './models/clause';
 export * from './models/finding';
 export * from './models/session';
 export * from './models/override';
+export * from './models/obligation';
 export * from './api/requests';
 export * from './api/responses';
 //# sourceMappingURL=index.d.ts.map

@@ -83,4 +83,58 @@ export declare enum OverrideAction {
     REJECT = "reject",
     RESOLVE = "resolve"
 }
+export declare enum ObligationType {
+    PAYMENT = "payment",
+    DELIVERY = "delivery",
+    NOTICE = "notice",
+    REPORTING = "reporting",
+    COMPLIANCE = "compliance",
+    PERFORMANCE = "performance",
+    RENEWAL = "renewal",
+    TERMINATION = "termination",
+    INSURANCE = "insurance",
+    AUDIT = "audit",
+    CONFIDENTIALITY = "confidentiality",
+    OTHER = "other"
+}
+export declare enum ObligationStatus {
+    UPCOMING = "upcoming",
+    DUE_SOON = "due_soon",
+    OVERDUE = "overdue",
+    COMPLETED = "completed",
+    WAIVED = "waived",
+    NOT_APPLICABLE = "not_applicable"
+}
+export declare enum ObligationPriority {
+    CRITICAL = "critical",
+    HIGH = "high",
+    MEDIUM = "medium",
+    LOW = "low"
+}
+export declare enum RecurrencePattern {
+    NONE = "none",
+    DAILY = "daily",
+    WEEKLY = "weekly",
+    MONTHLY = "monthly",
+    QUARTERLY = "quarterly",
+    SEMI_ANNUALLY = "semi_annually",
+    ANNUALLY = "annually",
+    CUSTOM = "custom"
+}
+export declare enum AgentType {
+    OBLIGATION = "obligation",
+    PARTY_INTELLIGENCE = "party_intelligence",
+    BENCHMARK = "benchmark",
+    COMPLIANCE = "compliance",
+    CONTRACT_COMPARISON = "contract_comparison",
+    RISK_FORECAST = "risk_forecast",
+    NEGOTIATION = "negotiation"
+}
+export declare enum AgentStatus {
+    PENDING = "pending",
+    RUNNING = "running",
+    COMPLETED = "completed",
+    FAILED = "failed",
+    PARTIAL = "partial"
+}
 //# sourceMappingURL=index.d.ts.map
