@@ -91,3 +91,65 @@ export var OverrideAction;
     OverrideAction["REJECT"] = "reject";
     OverrideAction["RESOLVE"] = "resolve";
 })(OverrideAction || (OverrideAction = {}));
+// Obligation-related enums
+export var ObligationType;
+(function (ObligationType) {
+    ObligationType["PAYMENT"] = "payment";
+    ObligationType["DELIVERY"] = "delivery";
+    ObligationType["NOTICE"] = "notice";
+    ObligationType["REPORTING"] = "reporting";
+    ObligationType["COMPLIANCE"] = "compliance";
+    ObligationType["PERFORMANCE"] = "performance";
+    ObligationType["RENEWAL"] = "renewal";
+    ObligationType["TERMINATION"] = "termination";
+    ObligationType["INSURANCE"] = "insurance";
+    ObligationType["AUDIT"] = "audit";
+    ObligationType["CONFIDENTIALITY"] = "confidentiality";
+    ObligationType["OTHER"] = "other";
+})(ObligationType || (ObligationType = {}));
+export var ObligationStatus;
+(function (ObligationStatus) {
+    ObligationStatus["UPCOMING"] = "upcoming";
+    ObligationStatus["DUE_SOON"] = "due_soon";
+    ObligationStatus["OVERDUE"] = "overdue";
+    ObligationStatus["COMPLETED"] = "completed";
+    ObligationStatus["WAIVED"] = "waived";
+    ObligationStatus["NOT_APPLICABLE"] = "not_applicable";
+})(ObligationStatus || (ObligationStatus = {}));
+export var ObligationPriority;
+(function (ObligationPriority) {
+    ObligationPriority["CRITICAL"] = "critical";
+    ObligationPriority["HIGH"] = "high";
+    ObligationPriority["MEDIUM"] = "medium";
+    ObligationPriority["LOW"] = "low";
+})(ObligationPriority || (ObligationPriority = {}));
+export var RecurrencePattern;
+(function (RecurrencePattern) {
+    RecurrencePattern["NONE"] = "none";
+    RecurrencePattern["DAILY"] = "daily";
+    RecurrencePattern["WEEKLY"] = "weekly";
+    RecurrencePattern["MONTHLY"] = "monthly";
+    RecurrencePattern["QUARTERLY"] = "quarterly";
+    RecurrencePattern["SEMI_ANNUALLY"] = "semi_annually";
+    RecurrencePattern["ANNUALLY"] = "annually";
+    RecurrencePattern["CUSTOM"] = "custom";
+})(RecurrencePattern || (RecurrencePattern = {}));
+// Agent-related enums
+export var AgentType;
+(function (AgentType) {
+    AgentType["OBLIGATION"] = "obligation";
+    AgentType["PARTY_INTELLIGENCE"] = "party_intelligence";
+    AgentType["BENCHMARK"] = "benchmark";
+    AgentType["COMPLIANCE"] = "compliance";
+    AgentType["CONTRACT_COMPARISON"] = "contract_comparison";
+    AgentType["RISK_FORECAST"] = "risk_forecast";
+    AgentType["NEGOTIATION"] = "negotiation";
+})(AgentType || (AgentType = {}));
+export var AgentStatus;
+(function (AgentStatus) {
+    AgentStatus["PENDING"] = "pending";
+    AgentStatus["RUNNING"] = "running";
+    AgentStatus["COMPLETED"] = "completed";
+    AgentStatus["FAILED"] = "failed";
+    AgentStatus["PARTIAL"] = "partial";
+})(AgentStatus || (AgentStatus = {}));
