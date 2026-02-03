@@ -7,12 +7,13 @@
   ],
   "navigationFallback": {
     "rewrite": "/index.html",
-    "exclude": ["/images/*.{png,jpg,gif}", "/css/*", "/api/*"]
+    "exclude": ["/images/*.{png,jpg,gif}", "/css/*", "/api/*", "/*.ico"]
   },
   "globalHeaders": {
     "content-security-policy": "default-src https: 'unsafe-eval' 'unsafe-inline'; style-src https: 'unsafe-inline'; img-src https: data:; font-src https: data:;"
   },
   "mimeTypes": {
-    ".json": "application/json"
+    ".json": "application/json",
+    ".ico": "image/x-icon"
   }
 }
