@@ -42,8 +42,8 @@ const STAGE_INFO: Record<ProcessingStage, StageInfo> = {
   upload_complete: { label: 'Upload Complete', description: 'File uploaded successfully', estimatedDuration: 1, progressStart: 15, progressEnd: 20 },
   extracting_text: { label: 'Extracting Text', description: 'OCR and text extraction...', estimatedDuration: 10, progressStart: 20, progressEnd: 35 },
   extracting_clauses: { label: 'Extracting Clauses', description: 'NLP clause segmentation...', estimatedDuration: 15, progressStart: 35, progressEnd: 55 },
-  rules_detection: { label: 'Rules Analysis', description: 'Applying leakage detection rules...', estimatedDuration: 10, progressStart: 55, progressEnd: 75 },
-  ai_detection: { label: 'AI Analysis', description: 'GPT-5.2 powered detection with RAG...', estimatedDuration: 45, progressStart: 75, progressEnd: 98 },
+  rules_detection: { label: 'Rules Analysis', description: 'Applying leakage detection rules...', estimatedDuration: 10, progressStart: 55, progressEnd: 70 },
+  ai_detection: { label: 'AI Analysis', description: 'AI-powered detection & obligation extraction...', estimatedDuration: 90, progressStart: 70, progressEnd: 98 },
   complete: { label: 'Complete', description: 'Analysis finished', estimatedDuration: 0, progressStart: 100, progressEnd: 100 },
   error: { label: 'Error', description: 'Processing failed', estimatedDuration: 0, progressStart: 0, progressEnd: 0 },
 };
@@ -218,7 +218,7 @@ export function useContractUpload(options: UseContractUploadOptions = {}) {
       }));
 
       // Simulate stage progression based on time
-      // Average times: text extraction (10s), clause extraction (15s), rules (10s), AI (45s)
+      // Average times: text extraction (10s), clause extraction (15s), rules (10s), AI + obligations (90s)
       const progressInterval = setInterval(() => {
         const elapsed = (Date.now() - analysisStartTime) / 1000;
 

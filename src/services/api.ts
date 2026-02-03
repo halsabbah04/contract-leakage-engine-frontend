@@ -13,7 +13,7 @@ const apiClient: AxiosInstance = axios.create({
   headers: {
     'Content-Type': 'application/json',
   },
-  timeout: 300000, // 5 minutes for analysis operations
+  timeout: 600000, // 10 minutes for analysis operations (includes AI detection + obligation extraction)
 });
 
 // Request interceptor - add auth headers if needed

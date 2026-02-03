@@ -538,18 +538,26 @@ export default function ContractDetailPage() {
                   <div className="bg-purple-50 rounded-lg p-4">
                     <p className="text-sm text-purple-600 mb-2">Payment Obligations</p>
                     <div className="flex justify-between">
-                      <div>
-                        <p className="text-xs text-gray-500">Our Payments</p>
-                        <p className="font-semibold text-gray-800">
-                          {formatCurrency(obligationsSummary.our_payment_obligations)}
-                        </p>
-                      </div>
-                      <div className="text-right">
-                        <p className="text-xs text-gray-500">Their Payments</p>
-                        <p className="font-semibold text-gray-800">
-                          {formatCurrency(obligationsSummary.their_payment_obligations)}
-                        </p>
-                      </div>
+                      {obligationsSummary.our_organization_name && (
+                        <div>
+                          <p className="text-xs text-gray-500">
+                            {obligationsSummary.our_organization_name} Owes
+                          </p>
+                          <p className="font-semibold text-gray-800">
+                            {formatCurrency(obligationsSummary.our_payment_obligations, obligationsSummary.currency || 'USD')}
+                          </p>
+                        </div>
+                      )}
+                      {obligationsSummary.counterparty_name && (
+                        <div className="text-right">
+                          <p className="text-xs text-gray-500">
+                            {obligationsSummary.counterparty_name} Owes
+                          </p>
+                          <p className="font-semibold text-gray-800">
+                            {formatCurrency(obligationsSummary.their_payment_obligations, obligationsSummary.currency || 'USD')}
+                          </p>
+                        </div>
+                      )}
                     </div>
                   </div>
                 )}

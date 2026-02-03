@@ -99,21 +99,29 @@ export default function ObligationsSummary({ summary }: ObligationsSummaryProps)
             <div className="bg-white/60 p-4 rounded-lg">
               <p className="text-sm text-gray-600">Total Payment Obligations</p>
               <p className="text-xl font-bold text-gray-900 mt-1">
-                {formatCurrency(summary.total_payment_obligations)}
+                {formatCurrency(summary.total_payment_obligations, summary.currency || 'USD')}
               </p>
             </div>
-            <div className="bg-white/60 p-4 rounded-lg">
-              <p className="text-sm text-gray-600">Our Payments</p>
-              <p className="text-xl font-bold text-red-600 mt-1">
-                {formatCurrency(summary.our_payment_obligations)}
-              </p>
-            </div>
-            <div className="bg-white/60 p-4 rounded-lg">
-              <p className="text-sm text-gray-600">Counterparty Payments</p>
-              <p className="text-xl font-bold text-green-600 mt-1">
-                {formatCurrency(summary.their_payment_obligations)}
-              </p>
-            </div>
+            {summary.our_organization_name && (
+              <div className="bg-white/60 p-4 rounded-lg">
+                <p className="text-sm text-gray-600">
+                  {summary.our_organization_name} Owes
+                </p>
+                <p className="text-xl font-bold text-blue-600 mt-1">
+                  {formatCurrency(summary.our_payment_obligations, summary.currency || 'USD')}
+                </p>
+              </div>
+            )}
+            {summary.counterparty_name && (
+              <div className="bg-white/60 p-4 rounded-lg">
+                <p className="text-sm text-gray-600">
+                  {summary.counterparty_name} Owes
+                </p>
+                <p className="text-xl font-bold text-blue-600 mt-1">
+                  {formatCurrency(summary.their_payment_obligations, summary.currency || 'USD')}
+                </p>
+              </div>
+            )}
           </div>
         </div>
       )}
