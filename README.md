@@ -16,7 +16,7 @@ Modern React + TypeScript frontend for the AI-powered Contract Leakage Analysis 
 
 ## Design System
 
-The frontend implements a **professional design system inspired by KPMG Master Guide standards**, matching the backend brand constants for consistency across PDF reports and web UI.
+The frontend implements a **professional enterprise design system** that matches the backend brand constants for visual consistency across PDF reports and the web UI.
 
 ### Brand Colors
 

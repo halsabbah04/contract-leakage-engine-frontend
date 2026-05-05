@@ -366,7 +366,7 @@ const handleExportReport = async () => {
 6. **User exports report**
    - Clicks "Export Report" button
    - PDF downloads with all findings
-   - Professional KPMG-inspired branding
+   - Professional enterprise-grade branding
 
 ---
 
@@ -427,7 +427,7 @@ import type {
 
 ## Styling & UX
 
-### KPMG-Inspired Design
+### Enterprise-Grade Design
 
 **Color Scheme:**
 - Primary actions: Deep blue (#1a237e)
@@ -703,7 +703,7 @@ const handleExport = async () => {
 - ✅ Navigation to clauses page
 - ✅ Loading and error states
 - ✅ Empty state handling
-- ✅ KPMG-inspired professional design
+- ✅ Enterprise-grade professional design
 - ✅ Responsive mobile/desktop layout
 - ✅ Type-safe API integration
 

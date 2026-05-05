@@ -444,7 +444,7 @@ import type {
 
 ## Styling & UX
 
-### KPMG-Inspired Design
+### Enterprise-Grade Design
 
 **Color Scheme:**
 - Primary actions: Deep blue (#1a237e)
@@ -788,7 +788,7 @@ navigate(`/contract/${contractId}/clauses`, {
 - ✅ Navigation from findings with auto-highlighting
 - ✅ Loading and error states
 - ✅ Empty state handling
-- ✅ KPMG-inspired professional design
+- ✅ Enterprise-grade professional design
 - ✅ Responsive mobile/desktop layout
 - ✅ Type-safe API integration
 

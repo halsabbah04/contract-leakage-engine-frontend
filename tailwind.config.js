@@ -7,7 +7,7 @@ export default {
   theme: {
     extend: {
       colors: {
-        // Brand colors - Professional Design System inspired by KPMG
+        // Brand colors - Contract Leakage Engine design system
         primary: {
           DEFAULT: '#1a237e',  // Deep blue (PRIMARY_BLUE)
           hover: '#0d1b2a',    // Darker for hover states
