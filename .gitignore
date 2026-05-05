@@ -40,3 +40,8 @@ build
 
 # TypeScript
 *.tsbuildinfo
+
+# Brainstorming / verification artifacts (Claude Code superpowers + Playwright MCP)
+.superpowers/
+.playwright-mcp/
+header-logo-verification*.png

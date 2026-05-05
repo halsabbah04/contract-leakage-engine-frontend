@@ -2,7 +2,7 @@ import { format, formatDistance, parseISO } from 'date-fns';
 import { Severity } from '@contract-leakage/shared-types';
 
 /**
- * Formatting utilities inspired by KPMG ESG design system
+ * Formatting utilities for the Contract Leakage Engine UI.
  */
 
 /**

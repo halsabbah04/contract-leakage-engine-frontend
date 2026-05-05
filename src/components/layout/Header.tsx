@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom';
 import { Upload } from 'lucide-react';
-import kpmgLogo from '../../assets/images/kpmg-logo-new.png';
+import cleLogo from '../../assets/images/cle-logo.svg';
 
 export default function Header() {
   return (
@@ -9,8 +9,8 @@ export default function Header() {
         <div className="flex items-center justify-between">
           <Link to="/" className="flex items-center space-x-4 hover:opacity-90 transition-opacity">
             <img
-              src={kpmgLogo}
-              alt="KPMG Logo"
+              src={cleLogo}
+              alt=""
               className="h-16 w-auto"
             />
             <div className="h-12 w-px bg-white/30" />

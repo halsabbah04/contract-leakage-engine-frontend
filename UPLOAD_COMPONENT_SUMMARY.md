@@ -381,7 +381,7 @@ interface ContractMetadataFormProps {
 
 ### Design Patterns
 
-**KPMG-Inspired Professional Design:**
+**Enterprise-Grade Professional Design:**
 - Primary blue for actions and progress
 - Success green for completed states
 - Error red for failures
@@ -566,7 +566,7 @@ function MyComponent() {
 - ✅ Error handling and recovery
 - ✅ Auto-navigation after completion
 - ✅ Type-safe API integration
-- ✅ KPMG-inspired professional design
+- ✅ Enterprise-grade professional design
 - ✅ Responsive mobile/desktop layout
 - ✅ Accessible and keyboard-friendly
 

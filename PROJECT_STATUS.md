@@ -14,7 +14,7 @@
 9. ✅ **YAML rules engine** - Rule-based leakage detection
 10. ✅ **RAG service** - Azure AI Search + vector embeddings
 11. ✅ **AI leakage detection** - GPT 5.2 integration
-12. ✅ **Export/reporting** - PDF generation (KPMG-inspired)
+12. ✅ **Export/reporting** - PDF generation (enterprise-grade branding)
 
 ### Shared Types (TypeScript)
 13. ✅ **Shared types package** - TypeScript interfaces matching Python models
